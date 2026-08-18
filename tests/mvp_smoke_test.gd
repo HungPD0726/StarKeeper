@@ -133,12 +133,16 @@ func _run() -> void:
 	# ── Constellation catalog test ────────────────────────────────────
 	var catalog: ConstellationCatalog = observatory.get_catalog()
 	_check(catalog != null, "Constellation catalog is null")
-	_check(catalog.get_total_count() == 3, "Expected 3 constellations in catalog")
+	_check(catalog.get_total_count() == 6, "Expected 6 constellations in catalog")
 	_check(catalog.get_discovered_count() == 0, "No constellations should be discovered at start")
+	_check(not catalog.constellations[0].poem_hint.is_empty(), "Constellation 0 is missing poem_hint")
+	_check(not catalog.constellations[3].poem_hint.is_empty(), "Constellation 3 is missing poem_hint")
 
 	# Check edge validation
 	var valid_edge: ConstellationData = catalog.get_constellation_for_edge(2, 7)
 	_check(valid_edge != null, "Edge (2,7) should belong to The Beacon constellation")
+	var new_valid_edge: ConstellationData = catalog.get_constellation_for_edge(1, 6)
+	_check(new_valid_edge != null, "Edge (1,6) should belong to The Hourglass constellation")
 	var invalid_edge: ConstellationData = catalog.get_constellation_for_edge(0, 1)
 	_check(invalid_edge == null, "Edge (0,1) should not belong to any constellation")
 
@@ -160,7 +164,6 @@ func _run() -> void:
 	_check(time_manager.get_day() == 2, "Day counter did not advance to Day 2")
 	_check(hud.get_node("%DayLabel").text == "Day 2", "HUD DayLabel did not update to Day 2")
 
-
 	# ── Lighting & Glow Environment test ──────────────────────────────
 	var world_env: WorldEnvironment = world.get_node("WorldEnvironment") as WorldEnvironment
 	_check(world_env != null, "WorldEnvironment node is missing")
@@ -176,15 +179,25 @@ func _run() -> void:
 	var fireflies: CPUParticles2D = world.get_node("WorldContent/Fireflies") as CPUParticles2D
 	_check(fireflies != null, "Fireflies particle node is missing")
 
-	# ── Phase 2: Atmosphere & Sound test ──────────────────────────────
+	# ── Phase 2 & 3: Atmosphere, Events & Environment test ───────────
 	var sound_mgr: SoundManager = world.get_node("SoundManager") as SoundManager
 	_check(sound_mgr != null, "SoundManager node is missing")
+
+	var celestial_mgr: CelestialEventManager = world.get_node("CelestialEventManager") as CelestialEventManager
+	_check(celestial_mgr != null, "CelestialEventManager node is missing")
+
+	var bench_node: Bench = world.get_node("WorldContent/Bench") as Bench
+	_check(bench_node != null, "Bench interactable node is missing")
+
+	var leaf_particles: CPUParticles2D = world.get_node("WorldContent/LeafParticles") as CPUParticles2D
+	_check(leaf_particles != null, "LeafParticles node is missing")
 
 	# Check observatory atmosphere layers (built at runtime)
 	var shooting_stars: ShootingStarSystem = observatory.get_node("ShootingStars") as ShootingStarSystem
 	_check(shooting_stars != null, "ShootingStarSystem is missing from ObservatoryView")
 
 	_finish()
+
 
 
 

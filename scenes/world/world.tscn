@@ -22,6 +22,10 @@
 [ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/flower_patch_warm.png" id="18_flowers_warm"]
 [ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/flower_patch_green.png" id="19_flowers_green"]
 
+[ext_resource type="Shader" path="res://resources/shaders/wind_sway.gdshader" id="20_wind_shader"]
+[ext_resource type="PackedScene" path="res://scenes/objects/bench.tscn" id="21_bench"]
+[ext_resource type="Script" path="res://scripts/systems/celestial_event_manager.gd" id="22_celestial_events"]
+
 [sub_resource type="Gradient" id="Gradient_day_night"]
 offsets = PackedFloat32Array(0, 0.2, 0.33, 0.67, 0.79, 0.9, 1)
 colors = PackedColorArray(0.258824, 0.301961, 0.517647, 1, 0.619608, 0.490196, 0.560784, 1, 1, 1, 0.960784, 1, 0.960784, 0.929412, 0.819608, 1, 0.85098, 0.482353, 0.419608, 1, 0.321569, 0.341176, 0.560784, 1, 0.258824, 0.301961, 0.517647, 1)
@@ -45,6 +49,19 @@ glow_intensity = 0.55
 glow_strength = 1.05
 glow_bloom = 0.15
 glow_hdr_threshold = 0.95
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tree_sway"]
+shader = ExtResource("20_wind_shader")
+shader_parameter/speed = 2.0
+shader_parameter/strength = 2.2
+shader_parameter/detail = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_grass_sway"]
+shader = ExtResource("20_wind_shader")
+shader_parameter/speed = 3.0
+shader_parameter/strength = 1.2
+shader_parameter/detail = 1.5
+
 
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_horizontal_boundary"]
@@ -102,51 +119,61 @@ polygon = PackedVector2Array(1264, 0, 1280, 0, 1280, 720, 1264, 720)
 [node name="PixelDetails" type="Node2D" parent="GroundVisuals"]
 
 [node name="FlowersLeftA" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(390, 520)
 texture = ExtResource("18_flowers_warm")
 scale = Vector2(2, 2)
 
 [node name="FlowersLeftB" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(452, 456)
 texture = ExtResource("19_flowers_green")
 scale = Vector2(2, 2)
 
 [node name="FlowersRightA" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(962, 562)
 texture = ExtResource("18_flowers_warm")
 scale = Vector2(2, 2)
 
 [node name="FlowersRightB" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(1040, 500)
 texture = ExtResource("19_flowers_green")
 scale = Vector2(2, 2)
 
 [node name="GrassA" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(328, 340)
 texture = ExtResource("16_grass_a")
 scale = Vector2(2, 2)
 
 [node name="GrassB" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(378, 390)
 texture = ExtResource("17_grass_b")
 scale = Vector2(2, 2)
 
 [node name="GrassC" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(900, 340)
 texture = ExtResource("16_grass_a")
 scale = Vector2(2, 2)
 
 [node name="GrassD" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(1080, 390)
 texture = ExtResource("17_grass_b")
 scale = Vector2(2, 2)
 
 [node name="GrassE" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(278, 580)
 texture = ExtResource("17_grass_b")
 scale = Vector2(2, 2)
 
 [node name="GrassF" type="Sprite2D" parent="GroundVisuals/PixelDetails"]
+material = SubResource("ShaderMaterial_grass_sway")
 position = Vector2(866, 606)
 texture = ExtResource("16_grass_a")
 scale = Vector2(2, 2)
@@ -217,6 +244,7 @@ position = Vector2(0, 13)
 shape = SubResource("CircleShape2D_tree")
 
 [node name="Sprite2D" type="Sprite2D" parent="WorldContent/TreeNorthWest"]
+material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("8_tree_sun")
 scale = Vector2(2, 2)
 
@@ -230,6 +258,7 @@ position = Vector2(0, 13)
 shape = SubResource("CircleShape2D_tree")
 
 [node name="Sprite2D" type="Sprite2D" parent="WorldContent/TreeNorthEast"]
+material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("9_tree_sunset")
 scale = Vector2(2, 2)
 
@@ -243,6 +272,7 @@ position = Vector2(0, 13)
 shape = SubResource("CircleShape2D_tree")
 
 [node name="Sprite2D" type="Sprite2D" parent="WorldContent/TreeSouthWest"]
+material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("10_tree_ember")
 scale = Vector2(2, 2)
 
@@ -256,6 +286,7 @@ position = Vector2(0, 13)
 shape = SubResource("CircleShape2D_tree")
 
 [node name="Sprite2D" type="Sprite2D" parent="WorldContent/TreeSouthEast"]
+material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("11_tree_pine")
 scale = Vector2(2, 2)
 
@@ -305,6 +336,7 @@ position = Vector2(0, 13)
 shape = SubResource("CircleShape2D_tree")
 
 [node name="Sprite2D" type="Sprite2D" parent="WorldContent/DeadTreeSouth"]
+material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("15_dead_tree")
 scale = Vector2(2, 2)
 
@@ -312,6 +344,25 @@ scale = Vector2(2, 2)
 position = Vector2(770, 468)
 texture = ExtResource("14_sign")
 scale = Vector2(2, 2)
+
+[node name="Bench" parent="WorldContent" instance=ExtResource("21_bench")]
+unique_name_in_owner = true
+position = Vector2(490, 430)
+
+[node name="LeafParticles" type="CPUParticles2D" parent="WorldContent"]
+unique_name_in_owner = true
+position = Vector2(640, 360)
+amount = 24
+lifetime = 5.0
+emission_shape = 3
+emission_rect_extents = Vector2(640, 360)
+gravity = Vector2(-22, 10)
+initial_velocity_min = 12.0
+initial_velocity_max = 28.0
+scale_amount_min = 1.5
+scale_amount_max = 3.0
+color = Color(0.92, 0.65, 0.35, 0.65)
+
 
 [node name="Telescope" parent="WorldContent" instance=ExtResource("3_telescope")]
 unique_name_in_owner = true
@@ -372,6 +423,11 @@ script = ExtResource("6_time")
 day_duration_seconds = 150.0
 starting_hour = 8.0
 environment_gradient = SubResource("Gradient_day_night")
+
+[node name="CelestialEventManager" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("22_celestial_events")
+
 
 [node name="Interface" type="CanvasLayer" parent="."]
 layer = 10

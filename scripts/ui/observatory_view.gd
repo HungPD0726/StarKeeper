@@ -127,6 +127,11 @@ func set_sound_manager(manager: SoundManager) -> void:
 	_sound_manager = manager
 
 
+func set_meteor_shower(enabled: bool) -> void:
+	if _shooting_star_system != null:
+		_shooting_star_system.set_meteor_shower_mode(enabled)
+
+
 # ── Atmosphere construction ───────────────────────────────────────────
 
 func _build_nebula() -> void:

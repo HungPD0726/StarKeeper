@@ -26,14 +26,17 @@ res://
 │           ├── LICENSE.txt
 │           └── keeper_walk_*.png
 ├── resources/
-│   └── player/
-│       └── keeper_sprite_frames.tres
+│   ├── player/
+│   │   └── keeper_sprite_frames.tres
+│   └── shaders/
+│       └── wind_sway.gdshader
 ├── scenes/
 │   ├── world/
 │   │   └── world.tscn
 │   ├── player/
 │   │   └── player.tscn
 │   ├── objects/
+│   │   ├── bench.tscn
 │   │   └── telescope.tscn
 │   └── ui/
 │       ├── hud.tscn
@@ -45,8 +48,10 @@ res://
 │   ├── player/
 │   │   └── player.gd
 │   ├── objects/
+│   │   ├── bench.gd
 │   │   └── telescope.gd
 │   ├── systems/
+│   │   ├── celestial_event_manager.gd
 │   │   ├── constellation_catalog.gd
 │   │   ├── constellation_data.gd
 │   │   ├── interactable.gd
@@ -299,18 +304,20 @@ TimeManager cập nhật giờ
 | --- | --- | --- |
 | `scripts/world/world.gd` | `StarKeeperWorld` | Điều phối các component của main scene |
 | `scripts/player/player.gd` | `Player` | Di chuyển, animation, collision và tìm interactable |
-| `scripts/systems/interactable.gd` | `Interactable` | Contract cơ sở cho vật thể tương tác |
+| `scripts/objects/bench.gd` | `Bench` | Vật thể tương tác Băng ghế cho phép ngồi nghỉ ngơi |
 | `scripts/objects/telescope.gd` | `Telescope` | Chuyển tương tác Telescope thành signal |
-| `scripts/systems/constellation_data.gd` | `ConstellationData` | Resource định nghĩa cấu trúc và kết nối chòm sao |
-| `scripts/systems/constellation_catalog.gd` | `ConstellationCatalog` | Quản lý danh mục chòm sao và logic nối sao |
+| `scripts/systems/celestial_event_manager.gd` | `CelestialEventManager` | Quản lý sự kiện thiên văn ngẫu nhiên mỗi đêm (Đêm quang đãng / Mưa sao băng) |
+| `scripts/systems/constellation_data.gd` | `ConstellationData` | Resource định nghĩa cấu trúc, bài thơ gợi ý và kết nối chòm sao |
+| `scripts/systems/constellation_catalog.gd` | `ConstellationCatalog` | Quản lý 6 chòm sao cổ đại và logic nối sao |
 | `scripts/systems/lantern_light.gd` | `LanternLight` | Đèn lồng PointLight2D bật tắt theo giờ và lập lòe tự nhiên |
 | `scripts/systems/shooting_star_system.gd` | `ShootingStarSystem` | Hệ thống sinh sao băng ngẫu nhiên và hiệu ứng vệt sáng mờ dần |
 | `scripts/systems/sound_manager.gd` | `SoundManager` | Bộ tổng hợp âm thanh procedural (chuông ngũ âm, hợp âm khải hoàn, bước chân) |
 | `scripts/systems/time_manager.gd` | `TimeManager` | Đồng hồ 24 giờ, màu môi trường và kiểm tra ban đêm |
 | `scripts/ui/hud.gd` | `HUD` | Hiển thị thời gian, prompt, toast thông báo và gợi ý phím |
-| `scripts/ui/journal_panel.gd` | `JournalPanel` | Sổ nhật ký ghi chép các chòm sao đã khám phá |
+| `scripts/ui/journal_panel.gd` | `JournalPanel` | Sổ nhật ký ghi chép 6 chòm sao kèm manh mối thơ ca |
 | `scripts/ui/observatory_view.gd` | `ObservatoryView` | Overlay bầu trời, dải Ngân Hà, mây trôi, tạo sao, nối sao và hiệu ứng khám phá |
 | `tests/mvp_smoke_test.gd` | — | Kiểm tra end-to-end bằng `SceneTree` |
+
 
 
 

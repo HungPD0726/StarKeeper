@@ -93,8 +93,9 @@ func _create_entry(constellation: ConstellationData) -> PanelContainer:
 		desc.text = constellation.description
 		desc.add_theme_color_override("font_color", Color(0.75, 0.8, 0.9, 1.0))
 	else:
-		desc.text = "Hãy quan sát bầu trời đêm và nối các vì sao để khám phá."
-		desc.add_theme_color_override("font_color", Color(0.4, 0.45, 0.55, 1.0))
+		desc.text = "📜 Manh mối: %s" % (constellation.poem_hint if not constellation.poem_hint.is_empty() else "Hãy quan sát bầu trời đêm và nối các vì sao.")
+		desc.add_theme_color_override("font_color", Color(0.55, 0.65, 0.75, 1.0))
 	vbox.add_child(desc)
+
 
 	return panel

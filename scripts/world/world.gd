@@ -3,7 +3,9 @@ extends Node2D
 
 @onready var player: Player = %Player
 @onready var telescope: Telescope = %Telescope
+@onready var bench: Bench = %Bench
 @onready var time_manager: TimeManager = %TimeManager
+@onready var celestial_events: CelestialEventManager = %CelestialEventManager
 @onready var environment_tint: CanvasModulate = %EnvironmentTint
 @onready var hud: HUD = %HUD
 @onready var observatory_view: ObservatoryView = %ObservatoryView
@@ -20,8 +22,11 @@ func _ready() -> void:
 
 	player.interaction_prompt_changed.connect(hud.set_interaction_prompt)
 	telescope.observatory_requested.connect(_open_observatory)
+	bench.sitting_state_changed.connect(_on_bench_sitting_changed)
 	observatory_view.closed.connect(_on_observatory_closed)
 	observatory_view.constellation_discovered.connect(_on_constellation_discovered)
+	celestial_events.celestial_event_started.connect(_on_celestial_event_started)
+
 	time_manager.time_changed.connect(_on_time_changed)
 	time_manager.day_changed.connect(_on_day_changed)
 	hud.set_day_text(time_manager.get_day_text())
@@ -52,6 +57,7 @@ func _open_observatory() -> void:
 
 	player.set_controls_enabled(false)
 	hud.hide()
+	observatory_view.set_meteor_shower(celestial_events.is_meteor_shower())
 	observatory_view.open_view()
 
 
@@ -69,14 +75,23 @@ func _on_time_changed(time_text: String, environment_color: Color) -> void:
 	# Update all lanterns in scene
 	get_tree().call_group(&"lantern_lights", &"update_time", current_hour)
 
-	# Update fireflies
+	# Update night events and fireflies
+	var is_night: bool = time_manager.is_night_time()
+	celestial_events.check_night_transition(is_night)
+
 	var fireflies: CPUParticles2D = get_node_or_null("WorldContent/Fireflies") as CPUParticles2D
 	if fireflies != null:
-		fireflies.emitting = time_manager.is_night_time()
+		fireflies.emitting = is_night
 
 
 func _on_day_changed(_day_number: int, day_text: String) -> void:
 	hud.set_day_text(day_text)
+
+
+func _on_celestial_event_started(_event_type: String, banner_text: String) -> void:
+	hud.show_notification(banner_text, 4.0)
+	if _sound_manager != null:
+		_sound_manager.play_notification()
 
 
 func _on_constellation_discovered(_data: ConstellationData) -> void:
@@ -84,6 +99,11 @@ func _on_constellation_discovered(_data: ConstellationData) -> void:
 	pass
 
 
+func _on_bench_sitting_changed(is_sitting: bool) -> void:
+	if is_sitting:
+		hud.show_notification("Đang ngồi nghỉ ngơi ngắm cảnh...", 2.0)
+		if _sound_manager != null:
+			_sound_manager.play_notification()
 
 
 func _toggle_journal() -> void:
@@ -100,7 +120,6 @@ func _toggle_journal() -> void:
 func _on_journal_closed() -> void:
 	hud.show()
 	player.set_controls_enabled(true)
-
 
 
 func _on_step_taken(_world_position: Vector2) -> void:
