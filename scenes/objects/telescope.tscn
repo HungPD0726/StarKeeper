@@ -1,0 +1,61 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/objects/telescope.gd" id="1_telescope"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interaction"]
+radius = 31.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(17, 24)
+
+[node name="Telescope" type="Area2D"]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+script = ExtResource("1_telescope")
+
+[node name="InteractionShape" type="CollisionShape2D" parent="."]
+position = Vector2(0, -2)
+shape = SubResource("CircleShape2D_interaction")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Shadow" type="Polygon2D" parent="Visual"]
+position = Vector2(0, 12)
+color = Color(0.105882, 0.121569, 0.184314, 0.45)
+polygon = PackedVector2Array(-13, 0, 13, 0, 9, 5, -9, 5)
+
+[node name="LegLeft" type="Polygon2D" parent="Visual"]
+color = Color(0.270588, 0.247059, 0.313726, 1)
+polygon = PackedVector2Array(-3, 1, 0, 2, -7, 15, -11, 15)
+
+[node name="LegRight" type="Polygon2D" parent="Visual"]
+color = Color(0.270588, 0.247059, 0.313726, 1)
+polygon = PackedVector2Array(0, 2, 3, 1, 11, 15, 7, 15)
+
+[node name="Stand" type="Polygon2D" parent="Visual"]
+color = Color(0.454902, 0.443137, 0.505882, 1)
+polygon = PackedVector2Array(-3, -8, 3, -8, 4, 5, -4, 5)
+
+[node name="Tube" type="Polygon2D" parent="Visual"]
+position = Vector2(0, -12)
+rotation = -0.436332
+color = Color(0.537255, 0.666667, 0.72549, 1)
+polygon = PackedVector2Array(-18, -5, 16, -5, 19, 5, -15, 5)
+
+[node name="TubeShade" type="Polygon2D" parent="Visual/Tube"]
+color = Color(0.321569, 0.447059, 0.533333, 1)
+polygon = PackedVector2Array(-15, 1, 18, 1, 19, 5, -15, 5)
+
+[node name="Lens" type="Polygon2D" parent="Visual/Tube"]
+position = Vector2(18, 0)
+color = Color(0.552941, 0.886275, 0.913725, 1)
+polygon = PackedVector2Array(-2, -6, 3, -5, 3, 5, -2, 6)
+
+[node name="SolidBody" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SolidBody"]
+position = Vector2(0, 3)
+shape = SubResource("RectangleShape2D_body")

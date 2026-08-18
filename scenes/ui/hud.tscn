@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_time"]
+bg_color = Color(0.0705882, 0.0941176, 0.152941, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.517647, 0.635294, 0.670588, 0.7)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+bg_color = Color(0.054902, 0.0666667, 0.117647, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.678431, 0.776471, 0.768627, 0.8)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hud")
+
+[node name="TimePanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 112.0
+offset_bottom = 57.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_time")
+
+[node name="Margin" type="MarginContainer" parent="TimePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 9
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 9
+theme_override_constants/margin_bottom = 5
+
+[node name="Labels" type="VBoxContainer" parent="TimePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="DayLabel" type="Label" parent="TimePanel/Margin/Labels"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.819608, 0.854902, 0.819608, 1)
+theme_override_font_sizes/font_size = 12
+text = "Day 1"
+
+[node name="TimeLabel" type="Label" parent="TimePanel/Margin/Labels"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.85098, 0.611765, 1)
+theme_override_font_sizes/font_size = 16
+text = "08:00"
+
+[node name="InteractionPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -86.0
+offset_top = -42.0
+offset_right = 86.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_prompt")
+
+[node name="PromptLabel" type="Label" parent="InteractionPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92549, 0.933333, 0.823529, 1)
+theme_override_font_sizes/font_size = 12
+text = "Press E to interact"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,0 +1,92 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/observatory_view.gd" id="1_observatory"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_caption"]
+bg_color = Color(0.027451, 0.0392157, 0.0901961, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45098, 0.545098, 0.713726, 0.5)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="ObservatoryView" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_observatory")
+
+[node name="NightBackground" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0196078, 0.027451, 0.0823529, 1)
+
+[node name="SkyGlow" type="Polygon2D" parent="."]
+color = Color(0.0901961, 0.109804, 0.223529, 1)
+polygon = PackedVector2Array(0, 180, 640, 150, 640, 360, 0, 360)
+
+[node name="Stars" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DistantMountain" type="Polygon2D" parent="."]
+color = Color(0.0980392, 0.117647, 0.211765, 1)
+polygon = PackedVector2Array(0, 310, 0, 260, 72, 225, 126, 270, 210, 202, 282, 263, 351, 215, 438, 274, 520, 218, 590, 266, 640, 238, 640, 360)
+
+[node name="NearMountain" type="Polygon2D" parent="."]
+color = Color(0.0470588, 0.0627451, 0.12549, 1)
+polygon = PackedVector2Array(0, 360, 0, 305, 82, 269, 154, 326, 246, 256, 327, 317, 417, 274, 505, 327, 586, 280, 640, 314, 640, 360)
+
+[node name="CaptionPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 170.0
+offset_top = 270.0
+offset_right = 470.0
+offset_bottom = 330.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
+
+[node name="Margin" type="MarginContainer" parent="CaptionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="Text" type="VBoxContainer" parent="CaptionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Message" type="Label" parent="CaptionPanel/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.901961, 0.921569, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "Observing the night sky..."
+horizontal_alignment = 1
+
+[node name="ReturnHint" type="Label" parent="CaptionPanel/Margin/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.635294, 0.694118, 0.823529, 1)
+theme_override_font_sizes/font_size = 11
+text = "ESC - Return"
+horizontal_alignment = 1
