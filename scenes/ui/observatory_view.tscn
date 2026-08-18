@@ -49,6 +49,16 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="LinesContainer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="DistantMountain" type="Polygon2D" parent="."]
 color = Color(0.0980392, 0.117647, 0.211765, 1)
 polygon = PackedVector2Array(0, 310, 0, 260, 72, 225, 126, 270, 210, 202, 282, 263, 351, 215, 438, 274, 520, 218, 590, 266, 640, 238, 640, 360)
@@ -81,12 +91,33 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_override_colors/font_color = Color(0.901961, 0.921569, 1, 1)
 theme_override_font_sizes/font_size = 15
-text = "Observing the night sky..."
+text = "Click to connect the stars..."
 horizontal_alignment = 1
 
 [node name="ReturnHint" type="Label" parent="CaptionPanel/Margin/Text"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.635294, 0.694118, 0.823529, 1)
 theme_override_font_sizes/font_size = 11
-text = "ESC - Return"
+text = "LMB - Connect Stars | RMB - Cancel | ESC - Return"
 horizontal_alignment = 1
+
+[node name="DiscoveryBanner" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 140.0
+offset_top = 20.0
+offset_right = 500.0
+offset_bottom = 52.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_caption")
+
+[node name="DiscoveryLabel" type="Label" parent="DiscoveryBanner"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "✦ Constellation Discovered ✦"
+horizontal_alignment = 1
+vertical_alignment = 1
+

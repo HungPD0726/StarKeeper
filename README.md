@@ -15,6 +15,7 @@ Open `project.godot` with Godot 4.7.x and run the main scene.
 ## Current MVP
 
 - Player movement, collision and camera
+- Four-direction walk animations with acceleration and step feedback
 - Reusable interaction system
 - Telescope observatory overlay
 - Continuous day/night clock and environment tint
@@ -22,3 +23,8 @@ Open `project.godot` with Godot 4.7.x and run the main scene.
 - Pixel-art assets with nearest-neighbor integer scaling
 
 Third-party art and licensing details are listed in [CREDITS.md](CREDITS.md).
+
+## Documentation
+
+- [Project overview and technical specification](project.md)
+- [Project structure and component responsibilities](project_structure.md)

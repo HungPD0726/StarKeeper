@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3ecd8jkrayed"
-path="res://.godot/imported/keeper_idle_06.png-2de3db629ab2d9094232e80c2867c0c4.ctex"
+uid="uid://djw6l255dle2m"
+path="res://.godot/imported/keeper_walk_down.png-6dea800286489dd1e5177300e50f187b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/third_party/cozy_asset_pack/player/keeper_idle_06.png"
-dest_files=["res://.godot/imported/keeper_idle_06.png-2de3db629ab2d9094232e80c2867c0c4.ctex"]
+source_file="res://assets/third_party/julia_character/keeper_walk_down.png"
+dest_files=["res://.godot/imported/keeper_walk_down.png-6dea800286489dd1e5177300e50f187b.ctex"]
 
 [params]
 

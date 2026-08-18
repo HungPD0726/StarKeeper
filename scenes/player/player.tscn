@@ -1,46 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_00.png" id="2_idle_00"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_01.png" id="3_idle_01"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_02.png" id="4_idle_02"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_03.png" id="5_idle_03"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_04.png" id="6_idle_04"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_05.png" id="7_idle_05"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_06.png" id="8_idle_06"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/player/keeper_idle_07.png" id="9_idle_07"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_keeper"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_idle_00")
-}, {
-"duration": 1.0,
-"texture": ExtResource("3_idle_01")
-}, {
-"duration": 1.0,
-"texture": ExtResource("4_idle_02")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_idle_03")
-}, {
-"duration": 1.0,
-"texture": ExtResource("6_idle_04")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_idle_05")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_idle_06")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_idle_07")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 8.0
-}]
+[ext_resource type="SpriteFrames" path="res://resources/player/keeper_sprite_frames.tres" id="2_keeper_frames"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 14)
@@ -62,13 +23,16 @@ polygon = PackedVector2Array(-7, 1, 7, 1, 5, 5, -5, 5)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Visual"]
 position = Vector2(0, -8)
-sprite_frames = SubResource("SpriteFrames_keeper")
-animation = &"idle"
-autoplay = "idle"
+sprite_frames = ExtResource("2_keeper_frames")
+animation = &"idle_down"
+autoplay = "idle_down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_player")
+
+[node name="FootstepOrigin" type="Marker2D" parent="."]
+position = Vector2(0, 8)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = 0

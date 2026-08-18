@@ -1,0 +1,11 @@
+Top Down Player Sprite Sheet (Julia)
+
+Creator: ArlanTR
+License: Creative Commons Zero (CC0 1.0)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Source:
+https://opengameart.org/content/top-down-player-sprite-sheet-julia
+
+The four directional walk sheets were renamed in Star Keeper for clarity.
+
