@@ -26,6 +26,8 @@
 [ext_resource type="PackedScene" path="res://scenes/objects/bench.tscn" id="21_bench"]
 [ext_resource type="Script" path="res://scripts/systems/celestial_event_manager.gd" id="22_celestial_events"]
 
+[ext_resource type="Shader" path="res://resources/shaders/water_pond.gdshader" id="23_water_shader"]
+
 [sub_resource type="Gradient" id="Gradient_day_night"]
 offsets = PackedFloat32Array(0, 0.2, 0.33, 0.67, 0.79, 0.9, 1)
 colors = PackedColorArray(0.258824, 0.301961, 0.517647, 1, 0.619608, 0.490196, 0.560784, 1, 1, 1, 0.960784, 1, 0.960784, 0.929412, 0.819608, 1, 0.85098, 0.482353, 0.419608, 1, 0.321569, 0.341176, 0.560784, 1, 0.258824, 0.301961, 0.517647, 1)
@@ -62,6 +64,24 @@ shader_parameter/speed = 3.0
 shader_parameter/strength = 1.2
 shader_parameter/detail = 1.5
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_water_pond"]
+shader = ExtResource("23_water_shader")
+shader_parameter/deep_color = Color(0.12, 0.22, 0.38, 0.9)
+shader_parameter/shallow_color = Color(0.22, 0.40, 0.58, 0.85)
+shader_parameter/foam_color = Color(0.75, 0.90, 0.98, 0.7)
+shader_parameter/speed = 1.3
+shader_parameter/wave_scale = 24.0
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_house"]
+polygon = PackedVector2Array(-65, 30, 65, 30, 65, 60, -65, 60)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tree"]
+polygon = PackedVector2Array(-10, 4, 10, 4, 10, 22, -10, 22)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_rock"]
+polygon = PackedVector2Array(-12, -4, 12, -4, 12, 10, -12, 10)
+
+
 
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_horizontal_boundary"]
@@ -84,37 +104,130 @@ script = ExtResource("1_world")
 
 [node name="GroundVisuals" type="Node2D" parent="."]
 
-[node name="Ground" type="Polygon2D" parent="GroundVisuals"]
-color = Color(0.505882, 0.482353, 0.101961, 1)
+[node name="GroundBase" type="Polygon2D" parent="GroundVisuals"]
+color = Color(0.24, 0.36, 0.19, 1)
 polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
 
+[node name="MeadowPatches" type="Node2D" parent="GroundVisuals"]
+
+[node name="PatchWest" type="Polygon2D" parent="GroundVisuals/MeadowPatches"]
+color = Color(0.29, 0.43, 0.22, 1)
+polygon = PackedVector2Array(80, 220, 260, 190, 360, 270, 310, 420, 140, 450, 60, 360)
+
+[node name="PatchEast" type="Polygon2D" parent="GroundVisuals/MeadowPatches"]
+color = Color(0.29, 0.43, 0.22, 1)
+polygon = PackedVector2Array(900, 220, 1140, 200, 1220, 340, 1160, 520, 960, 500, 880, 360)
+
+[node name="PatchCenter" type="Polygon2D" parent="GroundVisuals/MeadowPatches"]
+color = Color(0.28, 0.41, 0.21, 1)
+polygon = PackedVector2Array(480, 280, 660, 260, 740, 360, 680, 460, 460, 430)
+
 [node name="DistantGrass" type="Polygon2D" parent="GroundVisuals"]
-color = Color(0.392157, 0.4, 0.0705882, 1)
+color = Color(0.16, 0.24, 0.12, 1)
 polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 155, 1150, 134, 1040, 168, 918, 129, 784, 159, 642, 126, 510, 164, 392, 132, 258, 166, 126, 139, 0, 174)
 
-[node name="MainPath" type="Polygon2D" parent="GroundVisuals"]
-color = Color(0.921569, 0.666667, 0.27451, 1)
-polygon = PackedVector2Array(560, 720, 526, 598, 548, 498, 615, 421, 724, 402, 830, 430, 845, 468, 730, 454, 650, 474, 594, 538, 584, 620, 620, 720)
+[node name="HousePorchDeck" type="Node2D" parent="GroundVisuals"]
+position = Vector2(675, 305)
 
-[node name="PathHighlight" type="Polygon2D" parent="GroundVisuals"]
-color = Color(1, 0.764706, 0.345098, 0.5)
-polygon = PackedVector2Array(572, 720, 548, 602, 566, 510, 625, 440, 722, 420, 809, 438, 814, 449, 727, 438, 638, 458, 581, 525, 566, 610, 596, 720)
+[node name="DeckShadow" type="Polygon2D" parent="GroundVisuals/HousePorchDeck"]
+position = Vector2(0, 8)
+color = Color(0.1, 0.14, 0.18, 0.45)
+polygon = PackedVector2Array(-94, 0, 94, 0, 86, 12, -86, 12)
 
-[node name="TopFence" type="Polygon2D" parent="GroundVisuals"]
-color = Color(0.270588, 0.298039, 0.270588, 1)
-polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 16, 0, 16)
+[node name="DeckFloor" type="Polygon2D" parent="GroundVisuals/HousePorchDeck"]
+color = Color(0.46, 0.33, 0.20, 1)
+polygon = PackedVector2Array(-90, -18, 90, -18, 90, 8, -90, 8)
 
-[node name="BottomFence" type="Polygon2D" parent="GroundVisuals"]
-color = Color(0.270588, 0.298039, 0.270588, 1)
-polygon = PackedVector2Array(0, 704, 1280, 704, 1280, 720, 0, 720)
+[node name="DeckHighlight" type="Polygon2D" parent="GroundVisuals/HousePorchDeck"]
+color = Color(0.58, 0.44, 0.28, 1)
+polygon = PackedVector2Array(-90, -18, 90, -18, 90, -14, -90, -14)
 
-[node name="LeftFence" type="Polygon2D" parent="GroundVisuals"]
-color = Color(0.270588, 0.298039, 0.270588, 1)
-polygon = PackedVector2Array(0, 0, 16, 0, 16, 720, 0, 720)
+[node name="DeckStep" type="Polygon2D" parent="GroundVisuals/HousePorchDeck"]
+color = Color(0.38, 0.26, 0.16, 1)
+polygon = PackedVector2Array(-40, 8, 40, 8, 38, 14, -38, 14)
 
-[node name="RightFence" type="Polygon2D" parent="GroundVisuals"]
-color = Color(0.270588, 0.298039, 0.270588, 1)
-polygon = PackedVector2Array(1264, 0, 1280, 0, 1280, 720, 1264, 720)
+[node name="CobblestoneMainPath" type="Node2D" parent="GroundVisuals"]
+
+[node name="PathBed" type="Polygon2D" parent="GroundVisuals/CobblestoneMainPath"]
+color = Color(0.42, 0.32, 0.20, 1)
+polygon = PackedVector2Array(555, 720, 520, 595, 542, 495, 610, 418, 720, 398, 830, 428, 850, 470, 735, 456, 652, 476, 596, 540, 586, 622, 625, 720)
+
+[node name="PathCobbles" type="Polygon2D" parent="GroundVisuals/CobblestoneMainPath"]
+color = Color(0.68, 0.56, 0.42, 1)
+polygon = PackedVector2Array(565, 720, 532, 598, 552, 502, 618, 428, 722, 408, 822, 436, 838, 460, 730, 448, 644, 468, 590, 532, 578, 616, 612, 720)
+
+[node name="PathHighlight" type="Polygon2D" parent="GroundVisuals/CobblestoneMainPath"]
+color = Color(0.80, 0.70, 0.54, 0.75)
+polygon = PackedVector2Array(572, 720, 545, 602, 562, 510, 625, 438, 722, 416, 812, 442, 824, 454, 727, 442, 638, 460, 584, 526, 572, 610, 600, 720)
+
+[node name="ObservatoryStarPlaza" type="Node2D" parent="GroundVisuals"]
+position = Vector2(820, 448)
+
+[node name="PlazaShadow" type="Polygon2D" parent="GroundVisuals/ObservatoryStarPlaza"]
+position = Vector2(0, 4)
+color = Color(0.1, 0.12, 0.18, 0.4)
+polygon = PackedVector2Array(-66, 0, -46, -46, 0, -66, 46, -46, 66, 0, 46, 46, 0, 66, -46, 46)
+
+[node name="StonePlaza" type="Polygon2D" parent="GroundVisuals/ObservatoryStarPlaza"]
+color = Color(0.40, 0.43, 0.48, 1)
+polygon = PackedVector2Array(-62, 0, -44, -44, 0, -62, 44, -44, 62, 0, 44, 44, 0, 62, -44, 44)
+
+[node name="PlazaBorderTrim" type="Polygon2D" parent="GroundVisuals/ObservatoryStarPlaza"]
+color = Color(0.54, 0.57, 0.64, 1)
+polygon = PackedVector2Array(-62, 0, -44, -44, 0, -62, 44, -44, 62, 0, 44, 44, 0, 62, -44, 44, -40, 40, 0, 56, 40, 40, 56, 0, 40, -40, 0, -56, -40, -40, -56, 0)
+
+[node name="BrassAstrolabeRing" type="Polygon2D" parent="GroundVisuals/ObservatoryStarPlaza"]
+color = Color(0.72, 0.60, 0.30, 0.85)
+polygon = PackedVector2Array(-38, 0, -27, -27, 0, -38, 27, -27, 38, 0, 27, 27, 0, 38, -27, 27, -24, 24, 0, 34, 24, 24, 34, 0, 24, -24, 0, -34, -24, -24, -34, 0)
+
+[node name="CenterStarMosaic" type="Polygon2D" parent="GroundVisuals/ObservatoryStarPlaza"]
+color = Color(0.90, 0.80, 0.45, 1)
+polygon = PackedVector2Array(0, -22, 4, -6, 22, 0, 4, 6, 0, 22, -4, 6, -22, 0, -4, -6)
+
+[node name="MoonlightPond" type="Node2D" parent="GroundVisuals"]
+position = Vector2(210, 520)
+
+[node name="PondBasin" type="Polygon2D" parent="GroundVisuals/MoonlightPond"]
+color = Color(0.34, 0.36, 0.40, 1)
+polygon = PackedVector2Array(-78, -38, 46, -50, 84, -18, 88, 28, 36, 54, -60, 48, -88, 12)
+
+[node name="WaterSurface" type="Polygon2D" parent="GroundVisuals/MoonlightPond"]
+material = SubResource("ShaderMaterial_water_pond")
+color = Color(0.18, 0.34, 0.52, 1)
+polygon = PackedVector2Array(-72, -32, 40, -44, 76, -14, 80, 24, 30, 48, -54, 42, -80, 8)
+
+[node name="LilyPadA" type="Polygon2D" parent="GroundVisuals/MoonlightPond"]
+position = Vector2(-25, -10)
+color = Color(0.24, 0.48, 0.28, 1)
+polygon = PackedVector2Array(-8, -4, 8, -4, 6, 6, -6, 6)
+
+[node name="LilyPadB" type="Polygon2D" parent="GroundVisuals/MoonlightPond"]
+position = Vector2(30, 15)
+color = Color(0.24, 0.48, 0.28, 1)
+polygon = PackedVector2Array(-6, -3, 6, -3, 5, 5, -5, 5)
+
+[node name="WoodenPicketFence" type="Node2D" parent="GroundVisuals"]
+
+[node name="TopFenceRail" type="Polygon2D" parent="GroundVisuals/WoodenPicketFence"]
+color = Color(0.40, 0.28, 0.16, 1)
+polygon = PackedVector2Array(0, 4, 1280, 4, 1280, 14, 0, 14)
+
+[node name="TopFenceHighlight" type="Polygon2D" parent="GroundVisuals/WoodenPicketFence"]
+color = Color(0.55, 0.40, 0.25, 1)
+polygon = PackedVector2Array(0, 4, 1280, 4, 1280, 7, 0, 7)
+
+[node name="BottomFenceRail" type="Polygon2D" parent="GroundVisuals/WoodenPicketFence"]
+color = Color(0.40, 0.28, 0.16, 1)
+polygon = PackedVector2Array(0, 706, 1280, 706, 1280, 716, 0, 716)
+
+[node name="LeftFenceRail" type="Polygon2D" parent="GroundVisuals/WoodenPicketFence"]
+color = Color(0.40, 0.28, 0.16, 1)
+polygon = PackedVector2Array(4, 0, 14, 0, 14, 720, 4, 720)
+
+[node name="RightFenceRail" type="Polygon2D" parent="GroundVisuals/WoodenPicketFence"]
+color = Color(0.40, 0.28, 0.16, 1)
+polygon = PackedVector2Array(1266, 0, 1276, 0, 1276, 720, 1266, 720)
+
 
 [node name="PixelDetails" type="Node2D" parent="GroundVisuals"]
 
@@ -234,6 +347,9 @@ position = Vector2(0, -15)
 texture = ExtResource("7_house")
 scale = Vector2(2, 2)
 
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/ObservatoryHouse"]
+occluder = SubResource("OccluderPolygon2D_house")
+
 [node name="TreeNorthWest" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(250, 190)
 collision_layer = 1
@@ -247,6 +363,10 @@ shape = SubResource("CircleShape2D_tree")
 material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("8_tree_sun")
 scale = Vector2(2, 2)
+
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/TreeNorthWest"]
+position = Vector2(0, 8)
+occluder = SubResource("OccluderPolygon2D_tree")
 
 [node name="TreeNorthEast" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(1030, 188)
@@ -262,6 +382,10 @@ material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("9_tree_sunset")
 scale = Vector2(2, 2)
 
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/TreeNorthEast"]
+position = Vector2(0, 8)
+occluder = SubResource("OccluderPolygon2D_tree")
+
 [node name="TreeSouthWest" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(420, 480)
 collision_layer = 1
@@ -275,6 +399,10 @@ shape = SubResource("CircleShape2D_tree")
 material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("10_tree_ember")
 scale = Vector2(2, 2)
+
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/TreeSouthWest"]
+position = Vector2(0, 8)
+occluder = SubResource("OccluderPolygon2D_tree")
 
 [node name="TreeSouthEast" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(1100, 555)
@@ -290,6 +418,10 @@ material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("11_tree_pine")
 scale = Vector2(2, 2)
 
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/TreeSouthEast"]
+position = Vector2(0, 8)
+occluder = SubResource("OccluderPolygon2D_tree")
+
 [node name="RockWest" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(165, 420)
 collision_layer = 1
@@ -301,6 +433,9 @@ shape = SubResource("CircleShape2D_rock")
 [node name="Sprite2D" type="Sprite2D" parent="WorldContent/RockWest"]
 texture = ExtResource("12_rock_brown")
 scale = Vector2(2, 2)
+
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/RockWest"]
+occluder = SubResource("OccluderPolygon2D_rock")
 
 [node name="RockEast" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(980, 430)
@@ -314,6 +449,9 @@ shape = SubResource("CircleShape2D_rock")
 texture = ExtResource("13_rock_gray")
 scale = Vector2(2, 2)
 
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/RockEast"]
+occluder = SubResource("OccluderPolygon2D_rock")
+
 [node name="RockNorthEast" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(1160, 322)
 collision_layer = 1
@@ -325,6 +463,9 @@ shape = SubResource("CircleShape2D_rock")
 [node name="Sprite2D" type="Sprite2D" parent="WorldContent/RockNorthEast"]
 texture = ExtResource("12_rock_brown")
 scale = Vector2(2, 2)
+
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/RockNorthEast"]
+occluder = SubResource("OccluderPolygon2D_rock")
 
 [node name="DeadTreeSouth" type="StaticBody2D" parent="WorldContent"]
 position = Vector2(300, 600)
@@ -339,6 +480,10 @@ shape = SubResource("CircleShape2D_tree")
 material = SubResource("ShaderMaterial_tree_sway")
 texture = ExtResource("15_dead_tree")
 scale = Vector2(2, 2)
+
+[node name="Occluder" type="LightOccluder2D" parent="WorldContent/DeadTreeSouth"]
+position = Vector2(0, 8)
+occluder = SubResource("OccluderPolygon2D_tree")
 
 [node name="TelescopeSign" type="Sprite2D" parent="WorldContent"]
 position = Vector2(770, 468)
@@ -363,7 +508,6 @@ scale_amount_min = 1.5
 scale_amount_max = 3.0
 color = Color(0.92, 0.65, 0.35, 0.65)
 
-
 [node name="Telescope" parent="WorldContent" instance=ExtResource("3_telescope")]
 unique_name_in_owner = true
 position = Vector2(820, 448)
@@ -375,6 +519,17 @@ texture = SubResource("GradientTexture2D_light_radial")
 texture_scale = 1.3
 script = ExtResource("7_lantern")
 max_energy = 1.25
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 2.0
+
+[node name="HouseWindowLight" type="PointLight2D" parent="WorldContent" groups=["lantern_lights"]]
+position = Vector2(670, 230)
+color = Color(1, 0.88, 0.55, 1)
+texture = SubResource("GradientTexture2D_light_radial")
+texture_scale = 0.85
+script = ExtResource("7_lantern")
+max_energy = 1.15
 
 [node name="TelescopeLantern" type="PointLight2D" parent="WorldContent" groups=["lantern_lights"]]
 position = Vector2(770, 460)
@@ -383,8 +538,12 @@ texture = SubResource("GradientTexture2D_light_radial")
 texture_scale = 0.95
 script = ExtResource("7_lantern")
 max_energy = 1.1
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 2.0
 
 [node name="Fireflies" type="CPUParticles2D" parent="WorldContent"]
+
 position = Vector2(640, 400)
 emitting = false
 amount = 32

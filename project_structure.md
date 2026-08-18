@@ -29,6 +29,7 @@ res://
 │   ├── player/
 │   │   └── keeper_sprite_frames.tres
 │   └── shaders/
+│       ├── water_pond.gdshader
 │       └── wind_sway.gdshader
 ├── scenes/
 │   ├── world/

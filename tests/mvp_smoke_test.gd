@@ -192,6 +192,19 @@ func _run() -> void:
 	var leaf_particles: CPUParticles2D = world.get_node("WorldContent/LeafParticles") as CPUParticles2D
 	_check(leaf_particles != null, "LeafParticles node is missing")
 
+	# Check new Graphics Overhaul elements
+	var star_plaza: Node2D = world.get_node("GroundVisuals/ObservatoryStarPlaza") as Node2D
+	_check(star_plaza != null, "ObservatoryStarPlaza node is missing")
+
+	var moonlight_pond: Node2D = world.get_node("GroundVisuals/MoonlightPond") as Node2D
+	_check(moonlight_pond != null, "MoonlightPond node is missing")
+
+	var window_light: PointLight2D = world.get_node("WorldContent/HouseWindowLight") as PointLight2D
+	_check(window_light != null, "HouseWindowLight node is missing")
+
+	var house_occluder: LightOccluder2D = world.get_node("WorldContent/ObservatoryHouse/Occluder") as LightOccluder2D
+	_check(house_occluder != null, "House LightOccluder2D is missing")
+
 	# Check observatory atmosphere layers (built at runtime)
 	var shooting_stars: ShootingStarSystem = observatory.get_node("ShootingStars") as ShootingStarSystem
 	_check(shooting_stars != null, "ShootingStarSystem is missing from ObservatoryView")

@@ -41,10 +41,12 @@ func _ready() -> void:
 	_catalog = ConstellationCatalog.new()
 	_build_nebula()
 	_build_clouds()
+	_build_star_dust()
 	_build_stars()
 	_build_shooting_stars()
 	_build_selection_ring()
 	_build_preview_line()
+	_build_brass_vignette()
 	hide()
 	discovery_banner.hide()
 	set_process(false)
@@ -199,6 +201,64 @@ func _build_shooting_stars() -> void:
 	_shooting_star_system.max_interval = 15.0
 	_shooting_star_system.set_process(false)
 	add_child(_shooting_star_system)
+
+
+func _build_star_dust() -> void:
+	var dust: CPUParticles2D = CPUParticles2D.new()
+	dust.name = "StarDust"
+	dust.position = Vector2(320, 140)
+	dust.amount = 26
+	dust.lifetime = 4.5
+	dust.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	dust.emission_rect_extents = Vector2(310, 130)
+	dust.gravity = Vector2(0, -1)
+	dust.initial_velocity_min = 1.0
+	dust.initial_velocity_max = 3.5
+	dust.scale_amount_min = 1.0
+	dust.scale_amount_max = 2.0
+	dust.color = Color(1.5, 1.4, 0.9, 0.55)
+	dust.z_index = 0
+	add_child(dust)
+
+
+func _build_brass_vignette() -> void:
+	# Subtle dark vignette borders with brass astrolabe corner accents
+	var frame_layer: Control = Control.new()
+	frame_layer.name = "BrassFrame"
+	frame_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame_layer.z_index = 10
+	add_child(frame_layer)
+
+	# 4 Brass Corner Filigrees
+	var corners: Array[Vector2] = [
+		Vector2(12, 12),
+		Vector2(628, 12),
+		Vector2(12, 348),
+		Vector2(628, 348),
+	]
+	for pos: Vector2 in corners:
+		var corner_bracket: ColorRect = ColorRect.new()
+		corner_bracket.size = Vector2(6, 6)
+		corner_bracket.position = pos - Vector2(3, 3)
+		corner_bracket.color = Color(0.78, 0.65, 0.32, 0.65)
+		corner_bracket.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame_layer.add_child(corner_bracket)
+
+	# Top and bottom brass tick lines
+	var top_line: Line2D = Line2D.new()
+	top_line.width = 1.0
+	top_line.default_color = Color(0.65, 0.52, 0.25, 0.35)
+	top_line.add_point(Vector2(20, 12))
+	top_line.add_point(Vector2(620, 12))
+	frame_layer.add_child(top_line)
+
+	var bottom_line: Line2D = Line2D.new()
+	bottom_line.width = 1.0
+	bottom_line.default_color = Color(0.65, 0.52, 0.25, 0.35)
+	bottom_line.add_point(Vector2(20, 348))
+	bottom_line.add_point(Vector2(620, 348))
+	frame_layer.add_child(bottom_line)
+
 
 
 # ── Star construction ─────────────────────────────────────────────────
