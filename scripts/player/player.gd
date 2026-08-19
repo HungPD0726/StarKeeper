@@ -25,10 +25,18 @@ var _facing_name: StringName = &"down"
 var _sprite_rest_position: Vector2
 var _shadow_rest_scale: Vector2
 
+# Juice & Polish variables
+var _idle_time: float = 0.0
+var _sitting_time: float = 0.0
+var _squash_timer: float = 0.0
+var _was_moving_last_frame: bool = false
+
 @onready var interaction_area: Area2D = $InteractionArea
 @onready var animated_sprite: AnimatedSprite2D = $Visual/AnimatedSprite2D
 @onready var shadow: Polygon2D = $Visual/Shadow
 @onready var footstep_origin: Marker2D = $FootstepOrigin
+@onready var hand_lantern: PointLight2D = $Visual/HandLantern
+@onready var dream_sparkles: CPUParticles2D = $Visual/DreamSparkles
 
 
 func _ready() -> void:
@@ -59,7 +67,7 @@ func _physics_process(delta: float) -> void:
 	var movement_direction: Vector2 = (
 		get_last_motion().normalized() if distance_moved > 0.01 else input_direction
 	)
-	_update_movement_feedback(movement_direction, distance_moved)
+	_update_movement_feedback(movement_direction, distance_moved, delta)
 	_refresh_active_interactable()
 
 
@@ -77,31 +85,44 @@ func set_controls_enabled(enabled: bool) -> void:
 	_controls_enabled = enabled
 	if not enabled:
 		velocity = Vector2.ZERO
-		_reset_movement_feedback()
+		_reset_movement_feedback(0.016)
 	_emit_current_prompt()
 
 
 func set_sitting(enabled: bool, sit_position: Vector2 = Vector2.ZERO) -> void:
 	_is_sitting = enabled
 	velocity = Vector2.ZERO
+	_sitting_time = 0.0
+	if dream_sparkles != null:
+		dream_sparkles.emitting = false
 	if enabled:
 		global_position = sit_position
 		_facing_name = &"down"
-	_reset_movement_feedback()
+	_reset_movement_feedback(0.016)
 
 
 func is_sitting() -> bool:
 	return _is_sitting
 
 
-func _update_movement_feedback(movement_direction: Vector2, distance_moved: float) -> void:
+func _update_movement_feedback(movement_direction: Vector2, distance_moved: float, delta: float) -> void:
 	if not _controls_enabled or distance_moved <= 0.01:
-		_reset_movement_feedback()
+		if _was_moving_last_frame:
+			_squash_timer = 0.12  # Landing / stop squash
+			_was_moving_last_frame = false
+		_reset_movement_feedback(delta)
 		return
 
+	_was_moving_last_frame = true
+	_idle_time = 0.0
 	_facing_name = _get_facing_name(movement_direction)
 	_play_movement_animation(&"walk")
 	animated_sprite.speed_scale = clampf(velocity.length() / speed, 0.65, 1.15)
+
+	# Turn tilt juice
+	var target_tilt: float = clampf(velocity.x / speed * 0.06, -0.06, 0.06)
+	animated_sprite.rotation = lerpf(animated_sprite.rotation, target_tilt, delta * 14.0)
+	animated_sprite.scale = animated_sprite.scale.lerp(Vector2.ONE, delta * 12.0)
 
 	_walk_cycle_distance += distance_moved
 	if _walk_cycle_distance >= step_distance:
@@ -113,16 +134,54 @@ func _update_movement_feedback(movement_direction: Vector2, distance_moved: floa
 	var is_foot_lifted: bool = cycle_progress >= 0.12 and cycle_progress < 0.58
 	var bob_offset: float = -walk_bob_pixels if is_foot_lifted else 0.0
 	var sway_offset: float = _step_side * walk_sway_pixels if is_foot_lifted else 0.0
+	animated_sprite.offset = Vector2.ZERO
 	animated_sprite.position = _sprite_rest_position + Vector2(sway_offset, bob_offset)
 	shadow.scale = _shadow_rest_scale * (Vector2(0.84, 0.78) if is_foot_lifted else Vector2.ONE)
 
+	# Dynamic Hand Lantern Pendulum Sway
+	if hand_lantern != null:
+		var lantern_base_x: float = 6.0 if _facing_name != &"left" else -6.0
+		var sway_x: float = sin(cycle_progress * TAU) * 1.5
+		var sway_y: float = cos(cycle_progress * TAU) * 0.8
+		hand_lantern.position = Vector2(lantern_base_x + sway_x, -2.0 + sway_y)
 
-func _reset_movement_feedback() -> void:
+
+func _reset_movement_feedback(delta: float) -> void:
 	_walk_cycle_distance = 0.0
-	animated_sprite.position = _sprite_rest_position
 	animated_sprite.speed_scale = 1.0
+	animated_sprite.position = _sprite_rest_position
 	shadow.scale = _shadow_rest_scale
 	_play_movement_animation(&"idle")
+
+	# Smooth rotation recovery
+	animated_sprite.rotation = lerpf(animated_sprite.rotation, 0.0, delta * 12.0)
+
+	# Sitting cozy effects vs Idle breathing
+	if _is_sitting:
+		_sitting_time += delta
+		if _sitting_time > 3.0 and dream_sparkles != null and not dream_sparkles.emitting:
+			dream_sparkles.emitting = true
+		animated_sprite.offset = Vector2.ZERO
+		animated_sprite.scale = Vector2.ONE
+	else:
+		if dream_sparkles != null:
+			dream_sparkles.emitting = false
+		_idle_time += delta
+		var breathe: float = sin(_idle_time * 2.8) * 0.4
+		animated_sprite.offset = Vector2(0.0, breathe)
+
+		# Stop squash & stretch recovery
+		if _squash_timer > 0.0:
+			_squash_timer -= delta
+			animated_sprite.scale = Vector2(1.04, 0.96)
+		else:
+			var scale_breathe: float = sin(_idle_time * 2.8) * 0.015
+			animated_sprite.scale = Vector2(1.0 + scale_breathe, 1.0 - scale_breathe)
+
+	# Idle lantern breathing
+	if hand_lantern != null:
+		var lantern_base_x: float = 6.0 if _facing_name != &"left" else -6.0
+		hand_lantern.position = Vector2(lantern_base_x, -2.0 + sin(_idle_time * 2.8) * 0.5)
 
 
 func _get_facing_name(movement_direction: Vector2) -> StringName:
@@ -142,28 +201,34 @@ func _spawn_step_dust(movement_direction: Vector2) -> void:
 	if dust_parent == null:
 		return
 
-	var dust: Polygon2D = Polygon2D.new()
-	dust.name = "StepDust"
-	dust.polygon = PackedVector2Array([
-		Vector2(-1.0, 0.0),
-		Vector2(0.0, -1.0),
-		Vector2(1.0, 0.0),
-		Vector2(0.0, 1.0),
-	])
-	dust.color = step_dust_color
-	dust.z_index = -1
-	dust.add_to_group(&"step_dust")
-	dust_parent.add_child(dust)
+	for i: int in range(2):
+		var dust: Polygon2D = Polygon2D.new()
+		dust.name = "StepDust"
+		var size_f: float = 1.0 if i == 0 else 0.6
+		dust.polygon = PackedVector2Array([
+			Vector2(-size_f, 0.0),
+			Vector2(0.0, -size_f),
+			Vector2(size_f, 0.0),
+			Vector2(0.0, size_f),
+		])
+		dust.color = step_dust_color
+		dust.z_index = -1
+		dust.add_to_group(&"step_dust")
+		dust_parent.add_child(dust)
 
-	var side_direction: Vector2 = Vector2(-movement_direction.y, movement_direction.x)
-	var start_position: Vector2 = footstep_origin.global_position + side_direction * _step_side * 2.0
-	dust.global_position = start_position
-	var drift: Vector2 = -movement_direction * 3.0 + Vector2(0.0, -2.0)
-	var tween: Tween = dust.create_tween().set_parallel()
-	tween.tween_property(dust, "global_position", start_position + drift, 0.24).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(dust, "modulate:a", 0.0, 0.24)
-	tween.finished.connect(dust.queue_free)
-	step_taken.emit(start_position)
+		var side_offset: float = _step_side * (2.0 + float(i) * 1.5)
+		var side_direction: Vector2 = Vector2(-movement_direction.y, movement_direction.x)
+		var start_position: Vector2 = footstep_origin.global_position + side_direction * side_offset
+		dust.global_position = start_position
+
+		var drift: Vector2 = -movement_direction * (3.0 + float(i) * 2.0) + Vector2(randf_range(-1.0, 1.0), -2.0)
+		var duration: float = 0.22 + float(i) * 0.06
+		var tween: Tween = dust.create_tween().set_parallel()
+		tween.tween_property(dust, "global_position", start_position + drift, duration).set_trans(Tween.TRANS_SINE)
+		tween.tween_property(dust, "modulate:a", 0.0, duration)
+		tween.finished.connect(dust.queue_free)
+
+	step_taken.emit(footstep_origin.global_position)
 
 
 func _on_interaction_area_entered(area: Area2D) -> void:

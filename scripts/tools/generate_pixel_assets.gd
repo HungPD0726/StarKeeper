@@ -8,8 +8,103 @@ func _init() -> void:
 	_generate_lamp_post()
 	_generate_fences()
 	_generate_decorations()
+	_generate_star_desk()
 	print("Asset generation complete!")
 	quit()
+
+
+func _generate_star_desk() -> void:
+	var img: Image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+
+	var c_wood_dark: Color = Color.hex(0x362214ff)
+	var c_wood_mid: Color = Color.hex(0x563820ff)
+	var c_wood_light: Color = Color.hex(0x845630ff)
+	var c_wood_high: Color = Color.hex(0xb27e48ff)
+	var c_paper_base: Color = Color.hex(0xe0d4b8ff)
+	var c_paper_ink: Color = Color.hex(0x385478ff)
+	var c_paper_gold: Color = Color.hex(0xd4a838ff)
+	var c_book_cover: Color = Color.hex(0x6e2428ff)
+	var c_book_pages: Color = Color.hex(0xf0e4c8ff)
+	var c_mug_clay: Color = Color.hex(0xa85032ff)
+	var c_mug_tea: Color = Color.hex(0x5a2e18ff)
+	var c_shadow: Color = Color.hex(0x181c2460)
+
+	# 1. Shadow under desk
+	for x: int in range(3, 29):
+		for y: int in range(24, 30):
+			var dx: float = (float(x) - 15.5) / 12.5
+			var dy: float = (float(y) - 26.5) / 2.5
+			if dx * dx + dy * dy <= 1.0:
+				img.set_pixel(x, y, c_shadow)
+
+	# 2. Desk Legs (4 legs)
+	# Back left leg
+	for y: int in range(16, 26):
+		img.set_pixel(5, y, c_wood_dark)
+		img.set_pixel(6, y, c_wood_mid)
+	# Back right leg
+	for y: int in range(16, 26):
+		img.set_pixel(25, y, c_wood_dark)
+		img.set_pixel(26, y, c_wood_mid)
+	# Front left leg
+	for y: int in range(18, 28):
+		img.set_pixel(7, y, c_wood_mid)
+		img.set_pixel(8, y, c_wood_light)
+	# Front right leg
+	for y: int in range(18, 28):
+		img.set_pixel(23, y, c_wood_mid)
+		img.set_pixel(24, y, c_wood_light)
+
+	# 3. Desk Tabletop (y=10..18, x=3..28)
+	for x: int in range(3, 29):
+		for y: int in range(11, 18):
+			img.set_pixel(x, y, c_wood_mid)
+	for x: int in range(3, 29):
+		img.set_pixel(x, 10, c_wood_high)
+		img.set_pixel(x, 11, c_wood_light)
+		img.set_pixel(x, 17, c_wood_dark)
+		img.set_pixel(x, 18, c_wood_dark)
+
+	# 4. Star Chart Map (rolled parchment in center-left, x=6..18, y=11..16)
+	for x: int in range(6, 19):
+		for y: int in range(11, 16):
+			img.set_pixel(x, y, c_paper_base)
+	# Star constellation ink lines & stars
+	img.set_pixel(8, 12, c_paper_gold)
+	img.set_pixel(11, 14, c_paper_gold)
+	img.set_pixel(16, 12, c_paper_gold)
+	img.set_pixel(14, 15, c_paper_gold)
+	img.set_pixel(9, 13, c_paper_ink)
+	img.set_pixel(10, 13, c_paper_ink)
+	img.set_pixel(12, 14, c_paper_ink)
+	img.set_pixel(13, 15, c_paper_ink)
+	img.set_pixel(15, 13, c_paper_ink)
+
+	# 5. Antique Leather Book (right side, x=20..25, y=11..15)
+	for x: int in range(20, 26):
+		for y: int in range(11, 16):
+			img.set_pixel(x, y, c_book_cover)
+	img.set_pixel(25, 12, c_book_pages)
+	img.set_pixel(25, 13, c_book_pages)
+	img.set_pixel(25, 14, c_book_pages)
+	# Gold bookmark ribbon
+	img.set_pixel(22, 11, c_paper_gold)
+	img.set_pixel(22, 12, c_paper_gold)
+	img.set_pixel(22, 16, c_paper_gold)
+
+	# 6. Hot Tea Mug (x=4..7, y=8..12)
+	for x: int in range(4, 8):
+		for y: int in range(9, 13):
+			img.set_pixel(x, y, c_mug_clay)
+	img.set_pixel(5, 9, c_mug_tea)
+	img.set_pixel(6, 9, c_mug_tea)
+	# Mug handle
+	img.set_pixel(8, 10, c_mug_clay)
+	img.set_pixel(8, 11, c_mug_clay)
+
+	img.save_png("res://assets/objects/furniture/star_desk.png")
+
 
 
 func _generate_telescope() -> void:

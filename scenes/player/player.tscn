@@ -2,6 +2,19 @@
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" path="res://resources/player/keeper_sprite_frames.tres" id="2_keeper_frames"]
+[ext_resource type="Script" path="res://scripts/systems/lantern_light.gd" id="3_lantern"]
+
+[sub_resource type="Gradient" id="Gradient_lantern_falloff"]
+offsets = PackedFloat32Array(0, 0.25, 0.6, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0.92, 0.75, 0.8, 1, 0.75, 0.38, 0.18, 1, 0.6, 0.15, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_lantern_radial"]
+gradient = SubResource("Gradient_lantern_falloff")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(10, 14)
@@ -26,6 +39,31 @@ position = Vector2(0, -8)
 sprite_frames = ExtResource("2_keeper_frames")
 animation = &"idle_down"
 autoplay = "idle_down"
+
+[node name="HandLantern" type="PointLight2D" parent="Visual" groups=["lantern_lights"]]
+position = Vector2(6, -2)
+color = Color(1, 0.85, 0.48, 1)
+texture = SubResource("GradientTexture2D_lantern_radial")
+texture_scale = 0.75
+script = ExtResource("3_lantern")
+max_energy = 0.95
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+
+[node name="DreamSparkles" type="CPUParticles2D" parent="Visual"]
+position = Vector2(0, -14)
+emitting = false
+amount = 6
+lifetime = 2.0
+emission_shape = 3
+emission_rect_extents = Vector2(8, 10)
+gravity = Vector2(0, -6)
+initial_velocity_min = 1.0
+initial_velocity_max = 3.0
+scale_amount_min = 1.0
+scale_amount_max = 2.0
+color = Color(0.95, 0.88, 0.45, 0.7)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)

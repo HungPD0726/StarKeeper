@@ -71,6 +71,7 @@ Creative Commons Zero 1.0 (CC0) / Public Domain Dedication
 Used for:
 - Telescope: Kính thiên văn bằng đồng và chân gỗ 32x32 (`res://assets/objects/telescope/telescope.png`)
 - Bench: Băng ghế gỗ công viên ngắm cảnh (`res://assets/objects/furniture/bench_cozy.png`)
+- Star Desk: Bàn thiên văn ngoài hiên với bản đồ sao & tách trà nóng (`res://assets/objects/furniture/star_desk.png`)
 - Lamp Post: Cột đèn lồng gỗ treo (`res://assets/objects/furniture/lamp_post.png`)
 - Wooden Fence: Hàng rào cọc gỗ và cọc đơn (`res://assets/environment/fences/fence_wood.png`, `fence_post.png`)
 - Flower Pot: Chậu hoa gốm nung hoa xanh (`res://assets/objects/decorations/flower_pot.png`)

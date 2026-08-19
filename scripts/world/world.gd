@@ -123,6 +123,18 @@ func _on_journal_closed() -> void:
 	player.set_controls_enabled(true)
 
 
-func _on_step_taken(_world_position: Vector2) -> void:
-	if _sound_manager != null:
-		_sound_manager.play_step()
+func _on_step_taken(world_position: Vector2) -> void:
+	if _sound_manager == null:
+		return
+
+	var surface: StringName = &"grass"
+	# Porch Deck area around house
+	if world_position.x >= 580.0 and world_position.x <= 770.0 and world_position.y >= 285.0 and world_position.y <= 325.0:
+		surface = &"wood"
+	# Star Plaza and Cobblestone Path
+	elif world_position.distance_to(Vector2(820, 448)) <= 68.0:
+		surface = &"stone"
+	elif world_position.x >= 520.0 and world_position.x <= 840.0 and world_position.y >= 400.0 and world_position.y <= 720.0:
+		surface = &"stone"
+
+	_sound_manager.play_step(surface)

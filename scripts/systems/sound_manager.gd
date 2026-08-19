@@ -37,10 +37,20 @@ func play_constellation_complete() -> void:
 		_play_tone_delayed(notes[i], 0.35 - float(i) * 0.03, -10.0 + float(i) * 0.5, float(i) * 0.12)
 
 
-func play_step() -> void:
-	# Short noise burst for footstep
-	var frequency: float = randf_range(120.0, 200.0)
-	_play_tone(frequency, 0.04, -22.0)
+func play_step(surface_type: StringName = &"grass") -> void:
+	match surface_type:
+		&"wood":
+			# Warm hollow wooden thud
+			var freq: float = randf_range(200.0, 260.0)
+			_play_tone(freq, 0.05, -20.0)
+		&"stone":
+			# Crisp pebble tap
+			var freq: float = randf_range(340.0, 460.0)
+			_play_tone(freq, 0.035, -21.0)
+		_:
+			# Soft grass rustle
+			var freq: float = randf_range(130.0, 190.0)
+			_play_tone(freq, 0.04, -23.0)
 
 
 func play_notification() -> void:

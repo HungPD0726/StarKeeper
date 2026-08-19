@@ -251,11 +251,21 @@ func _run() -> void:
 	Input.action_release("move_right")
 	_check(player.global_position.x < 125.0, "Player crossed through the MoonlightPond collision")
 
-	var window_light: PointLight2D = world.get_node("WorldContent/HouseWindowLight") as PointLight2D
-	_check(window_light != null, "HouseWindowLight node is missing")
+	# Check new Graphics Overhaul & Juice elements
+	var star_desk: StaticBody2D = world.get_node("WorldContent/OutdoorStarDesk") as StaticBody2D
+	_check(star_desk != null, "OutdoorStarDesk node is missing")
 
-	var house_occluder: LightOccluder2D = world.get_node("WorldContent/ObservatoryHouse/Occluder") as LightOccluder2D
-	_check(house_occluder != null, "House LightOccluder2D is missing")
+	var mountain_mist: CPUParticles2D = world.get_node("WorldContent/MountainMist") as CPUParticles2D
+	_check(mountain_mist != null, "MountainMist node is missing")
+
+	var pond_ripples: CPUParticles2D = world.get_node("GroundVisuals/MoonlightPond/PondRipples") as CPUParticles2D
+	_check(pond_ripples != null, "PondRipples node is missing")
+
+	var hand_lantern: PointLight2D = player.get_node("Visual/HandLantern") as PointLight2D
+	_check(hand_lantern != null, "HandLantern node is missing from Player")
+
+	var dream_sparkles: CPUParticles2D = player.get_node("Visual/DreamSparkles") as CPUParticles2D
+	_check(dream_sparkles != null, "DreamSparkles node is missing from Player")
 
 	# Check observatory atmosphere layers (built at runtime)
 	var shooting_stars: ShootingStarSystem = observatory.get_node("ShootingStars") as ShootingStarSystem
