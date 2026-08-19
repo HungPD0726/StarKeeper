@@ -23,6 +23,7 @@ func _run() -> void:
 	var environment_tint: CanvasModulate = world.get_node("EnvironmentTint") as CanvasModulate
 	var time_manager: TimeManager = world.get_node("TimeManager") as TimeManager
 	var journal: JournalPanel = world.get_node("Interface/JournalPanel") as JournalPanel
+	var bench: Bench = world.get_node("WorldContent/Bench") as Bench
 
 	_check_project_settings()
 	_check_required_inputs()
@@ -31,6 +32,7 @@ func _run() -> void:
 	_check(hud != null, "HUD scene is missing")
 	_check(observatory != null, "Observatory view is missing")
 	_check(journal != null, "Journal panel is missing")
+	_check(bench != null, "Bench interactable is missing")
 	if not _failures.is_empty():
 		_finish()
 		return
@@ -108,6 +110,17 @@ func _run() -> void:
 	_check(not hud.visible, "HUD stayed visible during Observatory View")
 	await _capture_view("res://.godot/star_keeper_observatory.png")
 
+	# Exercise the real Control mouse-input route by discovering The Beacon.
+	var catalog: ConstellationCatalog = observatory.get_catalog()
+	_check(catalog.get_total_count() == 6, "Expected 6 constellations in catalog")
+	_check(catalog.get_discovered_count() == 0, "No constellations should be discovered at start")
+	var beacon: ConstellationData = catalog.constellations[0]
+	for connection: Vector2i in beacon.connections:
+		await _click_observatory_star(observatory, connection.x)
+		await _click_observatory_star(observatory, connection.y)
+	_check(beacon.discovered, "Mouse clicks did not discover The Beacon constellation")
+	_check(catalog.get_discovered_count() == 1, "Discovery count did not update after mouse input")
+
 	var position_before_locked_input: Vector2 = player.global_position
 	Input.action_press("move_right")
 	await _wait_physics_frames(15)
@@ -131,16 +144,12 @@ func _run() -> void:
 	_check(player.global_position.x > position_before_locked_input.x, "Player controls did not resume")
 
 	# ── Constellation catalog test ────────────────────────────────────
-	var catalog: ConstellationCatalog = observatory.get_catalog()
 	_check(catalog != null, "Constellation catalog is null")
-	_check(catalog.get_total_count() == 6, "Expected 6 constellations in catalog")
-	_check(catalog.get_discovered_count() == 0, "No constellations should be discovered at start")
+	_check(catalog.get_discovered_count() == 1, "The Beacon discovery was not retained")
 	_check(not catalog.constellations[0].poem_hint.is_empty(), "Constellation 0 is missing poem_hint")
 	_check(not catalog.constellations[3].poem_hint.is_empty(), "Constellation 3 is missing poem_hint")
 
 	# Check edge validation
-	var valid_edge: ConstellationData = catalog.get_constellation_for_edge(2, 7)
-	_check(valid_edge != null, "Edge (2,7) should belong to The Beacon constellation")
 	var new_valid_edge: ConstellationData = catalog.get_constellation_for_edge(1, 6)
 	_check(new_valid_edge != null, "Edge (1,6) should belong to The Hourglass constellation")
 	var invalid_edge: ConstellationData = catalog.get_constellation_for_edge(0, 1)
@@ -151,11 +160,49 @@ func _run() -> void:
 	await _send_action("journal")
 	await _wait_physics_frames(2)
 	_check(journal.visible, "Journal did not open on J key press")
+	var entries_scroll: ScrollContainer = journal.get_node("Panel/Margin/Content/EntriesScroll") as ScrollContainer
+	var entries: VBoxContainer = journal.get_node("%EntriesContainer") as VBoxContainer
+	_check(entries_scroll != null, "Journal entries are not inside a ScrollContainer")
+	_check(entries.get_child_count() == 6, "Journal did not build all 6 constellation entries")
+	var journal_scrollbar: VScrollBar = entries_scroll.get_v_scroll_bar()
+	_check(
+		journal_scrollbar.max_value > journal_scrollbar.page,
+		"Journal content does not expose a usable vertical scroll range"
+	)
+	_check(
+		(journal.get_node("%ProgressLabel") as Label).text == "Tiến độ: 1 / 6 chòm sao",
+		"Journal discovery progress is incorrect"
+	)
+	await _capture_view("res://.godot/star_keeper_journal.png")
 	# Close via ESC
 	await _send_action("cancel")
 	await _wait_physics_frames(2)
 	_check(not journal.visible, "Journal did not close on ESC (cancel) key press")
 	_check(hud.visible, "HUD was not restored after closing Journal via ESC")
+
+	# ── Bench sitting and dynamic prompt test ─────────────────────────
+	player.global_position = bench.global_position + Vector2(0.0, 22.0)
+	await _wait_physics_frames(3)
+	_check(interaction_panel.visible, "Interaction prompt did not appear near Bench")
+	await _send_action("interact")
+	_check(player.is_sitting(), "Bench interaction did not put Player into sitting state")
+	_check(
+		player.global_position.is_equal_approx(bench.get_sit_position()),
+		"Player did not move to the Bench sit marker"
+	)
+	_check(prompt_label.text == "Nhấn E để đứng dậy", "Bench prompt did not update after sitting")
+	var sitting_position: Vector2 = player.global_position
+	Input.action_press("move_right")
+	await _wait_physics_frames(12)
+	Input.action_release("move_right")
+	_check(player.global_position.is_equal_approx(sitting_position), "Player moved while sitting")
+	await _send_action("interact")
+	_check(not player.is_sitting(), "Second Bench interaction did not stand Player up")
+	_check(prompt_label.text == "Nhấn E để ngồi nghỉ ngơi", "Bench prompt did not reset after standing")
+	Input.action_press("move_right")
+	await _wait_physics_frames(8)
+	Input.action_release("move_right")
+	_check(player.global_position.x > sitting_position.x, "Player movement did not resume after standing")
 
 	# ── Day Progression test ──────────────────────────────────────────
 	_check(time_manager.get_day() == 1, "Initial day should be 1")
@@ -186,9 +233,6 @@ func _run() -> void:
 	var celestial_mgr: CelestialEventManager = world.get_node("CelestialEventManager") as CelestialEventManager
 	_check(celestial_mgr != null, "CelestialEventManager node is missing")
 
-	var bench_node: Bench = world.get_node("WorldContent/Bench") as Bench
-	_check(bench_node != null, "Bench interactable node is missing")
-
 	var leaf_particles: CPUParticles2D = world.get_node("WorldContent/LeafParticles") as CPUParticles2D
 	_check(leaf_particles != null, "LeafParticles node is missing")
 
@@ -198,6 +242,14 @@ func _run() -> void:
 
 	var moonlight_pond: Node2D = world.get_node("GroundVisuals/MoonlightPond") as Node2D
 	_check(moonlight_pond != null, "MoonlightPond node is missing")
+	var pond_collision: StaticBody2D = world.get_node("Boundaries/MoonlightPond") as StaticBody2D
+	_check(pond_collision != null, "MoonlightPond collision body is missing")
+	player.global_position = Vector2(105.0, 520.0)
+	await _wait_physics_frames(2)
+	Input.action_press("move_right")
+	await _wait_physics_frames(90)
+	Input.action_release("move_right")
+	_check(player.global_position.x < 125.0, "Player crossed through the MoonlightPond collision")
 
 	var window_light: PointLight2D = world.get_node("WorldContent/HouseWindowLight") as PointLight2D
 	_check(window_light != null, "HouseWindowLight node is missing")
@@ -269,6 +321,30 @@ func _send_action(action: StringName) -> void:
 	await process_frame
 
 
+func _click_observatory_star(observatory: ObservatoryView, star_index: int) -> void:
+	var star: ColorRect = observatory.get_node("Stars/Star%02d" % star_index) as ColorRect
+	var viewport_size: Vector2 = root.get_visible_rect().size
+	var window_size: Vector2 = Vector2(DisplayServer.window_get_size())
+	var star_center: Vector2 = star.global_position + star.size * 0.5
+	var click_position: Vector2 = star_center
+	if DisplayServer.get_name() != "headless":
+		var input_scale: float = minf(window_size.x / viewport_size.x, window_size.y / viewport_size.y)
+		var letterbox_offset: Vector2 = (window_size - viewport_size * input_scale) * 0.5
+		click_position = letterbox_offset + star_center * input_scale
+	var pressed_event: InputEventMouseButton = InputEventMouseButton.new()
+	pressed_event.button_index = MOUSE_BUTTON_LEFT
+	pressed_event.position = click_position
+	pressed_event.global_position = click_position
+	pressed_event.pressed = true
+	Input.parse_input_event(pressed_event)
+	await process_frame
+
+	var released_event: InputEventMouseButton = pressed_event.duplicate() as InputEventMouseButton
+	released_event.pressed = false
+	Input.parse_input_event(released_event)
+	await process_frame
+
+
 func _capture_view(path: String) -> void:
 	if DisplayServer.get_name() == "headless":
 		print("SCREENSHOT_SKIPPED_HEADLESS: %s" % path)
@@ -287,12 +363,18 @@ func _check(condition: bool, message: String) -> void:
 
 
 func _finish() -> void:
+	var exit_code: int = 0
 	if _failures.is_empty():
 		print("MVP_SMOKE_TEST: PASS")
-		quit(0)
-		return
+	else:
+		exit_code = 1
+		for failure: String in _failures:
+			push_error(failure)
+		print("MVP_SMOKE_TEST: FAIL (%d checks)" % _failures.size())
 
-	for failure: String in _failures:
-		push_error(failure)
-	print("MVP_SMOKE_TEST: FAIL (%d checks)" % _failures.size())
-	quit(1)
+	if current_scene != null:
+		current_scene.queue_free()
+		current_scene = null
+	await process_frame
+	await process_frame
+	quit(exit_code)

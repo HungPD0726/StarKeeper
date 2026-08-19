@@ -8,19 +8,23 @@
 [ext_resource type="Script" path="res://scripts/systems/time_manager.gd" id="6_time"]
 [ext_resource type="PackedScene" path="res://scenes/ui/journal_panel.tscn" id="6_journal"]
 [ext_resource type="Script" path="res://scripts/systems/lantern_light.gd" id="7_lantern"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/observatory_house.png" id="7_house"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/tree_sun.png" id="8_tree_sun"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/tree_sunset.png" id="9_tree_sunset"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/tree_ember.png" id="10_tree_ember"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/tree_pine.png" id="11_tree_pine"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/rock_brown.png" id="12_rock_brown"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/rock_gray.png" id="13_rock_gray"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/sign_front.png" id="14_sign"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/dead_tree.png" id="15_dead_tree"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/grass_tuft_a.png" id="16_grass_a"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/grass_tuft_b.png" id="17_grass_b"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/flower_patch_warm.png" id="18_flowers_warm"]
-[ext_resource type="Texture2D" path="res://assets/third_party/cozy_asset_pack/environment/flower_patch_green.png" id="19_flowers_green"]
+[ext_resource type="Texture2D" path="res://assets/buildings/observatory/observatory_house.png" id="7_house"]
+[ext_resource type="Texture2D" path="res://assets/environment/trees/tree_sun.png" id="8_tree_sun"]
+[ext_resource type="Texture2D" path="res://assets/environment/trees/tree_sunset.png" id="9_tree_sunset"]
+[ext_resource type="Texture2D" path="res://assets/environment/trees/tree_ember.png" id="10_tree_ember"]
+[ext_resource type="Texture2D" path="res://assets/environment/trees/tree_pine.png" id="11_tree_pine"]
+[ext_resource type="Texture2D" path="res://assets/environment/rocks/rock_brown.png" id="12_rock_brown"]
+[ext_resource type="Texture2D" path="res://assets/environment/rocks/rock_gray.png" id="13_rock_gray"]
+[ext_resource type="Texture2D" path="res://assets/environment/foliage/sign_front.png" id="14_sign"]
+[ext_resource type="Texture2D" path="res://assets/environment/trees/dead_tree.png" id="15_dead_tree"]
+[ext_resource type="Texture2D" path="res://assets/environment/foliage/grass_tuft_a.png" id="16_grass_a"]
+[ext_resource type="Texture2D" path="res://assets/environment/foliage/grass_tuft_b.png" id="17_grass_b"]
+[ext_resource type="Texture2D" path="res://assets/environment/foliage/flower_patch_warm.png" id="18_flowers_warm"]
+[ext_resource type="Texture2D" path="res://assets/environment/foliage/flower_patch_green.png" id="19_flowers_green"]
+[ext_resource type="Texture2D" path="res://assets/objects/furniture/lamp_post.png" id="24_lamp_post"]
+[ext_resource type="Texture2D" path="res://assets/objects/decorations/flower_pot.png" id="25_flower_pot"]
+[ext_resource type="Texture2D" path="res://assets/objects/decorations/wooden_crate.png" id="26_crate"]
+[ext_resource type="Texture2D" path="res://assets/environment/fences/fence_wood.png" id="27_fence_wood"]
 
 [ext_resource type="Shader" path="res://resources/shaders/wind_sway.gdshader" id="20_wind_shader"]
 [ext_resource type="PackedScene" path="res://scenes/objects/bench.tscn" id="21_bench"]
@@ -325,6 +329,14 @@ collision_mask = 0
 position = Vector2(1292, 360)
 shape = SubResource("RectangleShape2D_vertical_boundary")
 
+[node name="MoonlightPond" type="StaticBody2D" parent="Boundaries"]
+position = Vector2(210, 520)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Boundaries/MoonlightPond"]
+polygon = PackedVector2Array(-78, -38, 46, -50, 84, -18, 88, 28, 36, 54, -60, 48, -88, 12)
+
 [node name="WorldContent" type="Node2D" parent="."]
 y_sort_enabled = true
 
@@ -486,8 +498,33 @@ position = Vector2(0, 8)
 occluder = SubResource("OccluderPolygon2D_tree")
 
 [node name="TelescopeSign" type="Sprite2D" parent="WorldContent"]
-position = Vector2(770, 468)
+position = Vector2(765, 468)
 texture = ExtResource("14_sign")
+scale = Vector2(2, 2)
+
+[node name="LampPostPlaza" type="Sprite2D" parent="WorldContent"]
+position = Vector2(750, 452)
+texture = ExtResource("24_lamp_post")
+scale = Vector2(2, 2)
+
+[node name="LampPostHouse" type="Sprite2D" parent="WorldContent"]
+position = Vector2(565, 305)
+texture = ExtResource("24_lamp_post")
+scale = Vector2(2, 2)
+
+[node name="FlowerPotA" type="Sprite2D" parent="WorldContent"]
+position = Vector2(595, 305)
+texture = ExtResource("25_flower_pot")
+scale = Vector2(2, 2)
+
+[node name="FlowerPotB" type="Sprite2D" parent="WorldContent"]
+position = Vector2(755, 305)
+texture = ExtResource("25_flower_pot")
+scale = Vector2(2, 2)
+
+[node name="SupplyCrate" type="Sprite2D" parent="WorldContent"]
+position = Vector2(782, 308)
+texture = ExtResource("26_crate")
 scale = Vector2(2, 2)
 
 [node name="Bench" parent="WorldContent" instance=ExtResource("21_bench")]
@@ -599,4 +636,3 @@ unique_name_in_owner = true
 
 [node name="JournalPanel" parent="Interface" instance=ExtResource("6_journal")]
 unique_name_in_owner = true
-

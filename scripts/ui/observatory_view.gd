@@ -89,17 +89,22 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel"):
 		close_view()
 		get_viewport().set_input_as_handled()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if not visible or event is not InputEventMouseButton:
 		return
 
-	if event is InputEventMouseButton:
-		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
-		if mouse_event.pressed:
-			if mouse_event.button_index == MOUSE_BUTTON_LEFT:
-				_on_left_click(mouse_event.position)
-				get_viewport().set_input_as_handled()
-			elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
-				_cancel_selection()
-				get_viewport().set_input_as_handled()
+	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return
+
+	if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+		_on_left_click(mouse_event.position)
+		accept_event()
+	elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+		_cancel_selection()
+		accept_event()
 
 
 func open_view() -> void:

@@ -5,26 +5,41 @@
 ```text
 res://
 ├── project.godot
+├── export_presets.cfg
 ├── README.md
 ├── project.md
 ├── project_structure.md
-├── CREDITS.md
+├── ASSET_CREDITS.md
 ├── icon.svg
 ├── assets/
-│   └── third_party/
-│       ├── cozy_asset_pack/
-│       │   ├── LICENSE.txt
-│       │   └── environment/
-│       │       ├── observatory_house.png
-│       │       ├── tree_*.png
-│       │       ├── rock_*.png
-│       │       ├── grass_tuft_*.png
-│       │       ├── flower_patch_*.png
-│       │       ├── dead_tree.png
-│       │       └── sign_front.png
-│       └── julia_character/
-│           ├── LICENSE.txt
-│           └── keeper_walk_*.png
+│   ├── buildings/
+│   │   └── observatory/
+│   │       └── observatory_house.png
+│   ├── characters/
+│   │   └── player/
+│   │       └── keeper_walk_*.png
+│   ├── environment/
+│   │   ├── fences/
+│   │   │   ├── fence_wood.png
+│   │   │   └── fence_post.png
+│   │   ├── foliage/
+│   │   │   ├── flower_patch_*.png
+│   │   │   ├── grass_tuft_*.png
+│   │   │   └── sign_front.png
+│   │   ├── rocks/
+│   │   │   └── rock_*.png
+│   │   └── trees/
+│   │       ├── tree_*.png
+│   │       └── dead_tree.png
+│   └── objects/
+│       ├── decorations/
+│       │   ├── flower_pot.png
+│       │   └── wooden_crate.png
+│       ├── furniture/
+│       │   ├── bench_cozy.png
+│       │   └── lamp_post.png
+│       └── telescope/
+│           └── telescope.png
 ├── resources/
 │   ├── player/
 │   │   └── keeper_sprite_frames.tres
@@ -77,7 +92,7 @@ Godot tạo file `.import` cạnh mỗi ảnh và file `.gd.uid` cạnh mỗi sc
 - `scripts/systems/` chứa lớp nền không thuộc riêng một visual scene.
 - `assets/third_party/` chứa asset ngoài kèm giấy phép ngay tại chỗ.
 - `tests/` chứa script kiểm thử chạy trực tiếp bằng Godot CLI.
-- Không có autoload; state của MVP thuộc World hiện tại.
+- Không có autoload; state của vertical slice thuộc World hiện tại.
 - Scene gọi xuống child; child giao tiếp ngược lên bằng signal.
 - Collision và visual là các node riêng để có thể thay artwork độc lập.
 - Các node mà `world.gd` truy cập dùng unique name (`%Player`, `%HUD`, ...).
@@ -91,28 +106,33 @@ Script: `scripts/world/world.gd`
 ```text
 World (Node2D, StarKeeperWorld)
 ├── GroundVisuals
-│   ├── Ground / DistantGrass
-│   ├── MainPath / PathHighlight
-│   ├── TopFence / BottomFence / LeftFence / RightFence
+│   ├── GroundBase / MeadowPatches / DistantGrass
+│   ├── HousePorchDeck / CobblestoneMainPath
+│   ├── ObservatoryStarPlaza
+│   ├── MoonlightPond (water shader + lily pads)
+│   ├── WoodenPicketFence
 │   └── PixelDetails
 │       ├── FlowersLeftA ... FlowersRightB
 │       └── GrassA ... GrassF
 ├── Boundaries
-│   ├── Top (StaticBody2D)
-│   ├── Bottom (StaticBody2D)
-│   ├── Left (StaticBody2D)
-│   └── Right (StaticBody2D)
+│   ├── Top / Bottom / Left / Right (StaticBody2D)
+│   └── MoonlightPond (StaticBody2D)
 ├── WorldContent (y-sort)
 │   ├── ObservatoryHouse (StaticBody2D)
 │   ├── Tree* / Rock* / DeadTreeSouth (StaticBody2D)
-│   ├── TelescopeSign
-│   ├── Telescope (instanced scene)
-│   └── Player (instanced scene)
+│   ├── TelescopeSign / Bench / Telescope
+│   ├── LeafParticles / Fireflies
+│   ├── ObservatoryHouseLantern / HouseWindowLight / TelescopeLantern
+│   └── Player
+│       └── PlayerLantern
+├── WorldEnvironment
 ├── EnvironmentTint (CanvasModulate)
 ├── TimeManager
+├── CelestialEventManager
 └── Interface (CanvasLayer)
     ├── HUD (instanced scene)
-    └── ObservatoryView (instanced scene)
+    ├── ObservatoryView (instanced scene)
+    └── JournalPanel (instanced scene)
 ```
 
 ### Trách nhiệm
@@ -121,9 +141,13 @@ World (Node2D, StarKeeperWorld)
 
 - Nối signal khi `_ready()`.
 - Chuyển trạng thái gameplay sang Observatory View.
-- Khóa/mở điều khiển Player.
+- Kiểm tra khung giờ ban đêm trước khi mở kính thiên văn.
+- Khóa/mở điều khiển Player và đồng bộ trạng thái ngồi ở Bench.
 - Ẩn/hiện HUD.
 - Nhận thời gian và áp màu lên `CanvasModulate`.
+- Cập nhật lantern, fireflies và sự kiện thiên văn theo giờ.
+- Cấp cùng một `ConstellationCatalog` cho Observatory View và Journal.
+- Chuyển các sự kiện gameplay thành notification và âm thanh procedural.
 
 World không tự tính thời gian, không đọc input di chuyển và không tạo sao. Mỗi việc đó thuộc về component chuyên trách.
 
@@ -151,11 +175,12 @@ Player (CharacterBody2D)
 - Dùng acceleration/deceleration để đưa velocity tới vận tốc mục tiêu, sau đó gọi `move_and_slide()`.
 - Dùng quãng đường di chuyển thực tế để điều khiển nhịp bob/sway, co bóng và tạo step dust.
 - Chọn `idle_*` hoặc `walk_*` theo hướng di chuyển trội và đồng bộ tốc độ animation với velocity.
-- Phát `step_taken` tại `FootstepOrigin`, cho phép bổ sung âm thanh mà không ghép audio vào movement logic.
+- Phát `step_taken` tại `FootstepOrigin`; World chuyển signal này thành âm thanh bước chân mà không ghép audio vào movement logic.
 - Theo dõi `Interactable` đi vào/rời `InteractionArea`.
 - Chọn interactable gần nhất bằng khoảng cách bình phương.
 - Gọi `interact(self)` khi nhận action `interact`.
-- Phát `interaction_prompt_changed` khi mục tiêu tương tác thay đổi.
+- Phát `interaction_prompt_changed` khi mục tiêu hoặc nội dung prompt thay đổi.
+- `set_sitting()` đặt Player vào SitMarker, giữ input tương tác nhưng khóa movement cho tới khi đứng dậy.
 
 Player không tham chiếu HUD, Telescope hoặc Observatory View.
 
@@ -189,7 +214,16 @@ Telescope (Area2D, Interactable)
     └── CollisionShape2D
 ```
 
-`Telescope.interact()` chỉ phát `observatory_requested`. World nhận signal và thực hiện chuyển trạng thái UI/gameplay.
+`Telescope.interact()` chỉ phát `observatory_requested`. World nhận signal, kiểm tra `TimeManager.is_night_time()` rồi mới thực hiện chuyển trạng thái UI/gameplay.
+
+### Bench
+
+Files:
+
+- `scenes/objects/bench.tscn`
+- `scripts/objects/bench.gd`
+
+Bench chứa visual/collision riêng và một `SitMarker`. `interact()` đổi prompt, phát `sitting_state_changed`; World gọi `Player.set_sitting()` và Player vẫn nhận `E` để đứng dậy.
 
 ## 6. TimeManager
 
@@ -203,15 +237,19 @@ File: `scripts/systems/time_manager.gd`
 | --- | --- | --- |
 | `day_duration_seconds` | `150.0` | Thời gian thực của một chu kỳ 24 giờ |
 | `starting_hour` | `8.0` | Giờ bắt đầu |
+| `starting_day` | `1` | Ngày bắt đầu |
+| `night_start_hour` | `19.0` | Bắt đầu cho phép dùng Telescope |
+| `night_end_hour` | `5.0` | Kết thúc khung giờ quan sát |
 | `environment_gradient` | Resource trong World | Ánh xạ giờ sang màu môi trường |
 
 Mỗi frame, manager cập nhật `_current_hour`, sau đó phát:
 
 ```gdscript
 time_changed(time_text: String, environment_color: Color)
+day_changed(day_number: int, day_text: String)
 ```
 
-HUD không tự tính giờ và World không tự sample Gradient.
+HUD không tự tính giờ và World không tự sample Gradient. Khi `_current_hour` vượt 24:00, manager tăng `_current_day` rồi cập nhật `DayLabel` qua signal.
 
 ## 7. UI scenes
 
@@ -229,11 +267,13 @@ HUD (Control)
 │       └── Labels
 │           ├── DayLabel
 │           └── TimeLabel
-└── InteractionPanel
-    └── PromptLabel
+├── InteractionPanel
+│   └── PromptLabel
+├── NotificationLabel
+└── JournalHint
 ```
 
-HUD là view thụ động. Nó chỉ cung cấp `set_time_text()` và `set_interaction_prompt()`.
+HUD là view thụ động. Nó nhận ngày/giờ, prompt và notification từ World; HUD không đọc gameplay state trực tiếp.
 
 ### Observatory View
 
@@ -247,16 +287,35 @@ ObservatoryView (Control)
 ├── NightBackground
 ├── SkyGlow
 ├── Stars
+├── LinesContainer
 ├── DistantMountain
 ├── NearMountain
-└── CaptionPanel
-    └── Margin
-        └── Text
-            ├── Message
-            └── ReturnHint
+├── CaptionPanel
+├── DiscoveryBanner
+└── Runtime children
+    ├── NebulaSoft* / Cloud* / StarDust
+    ├── ShootingStars
+    ├── SelectionRing / PreviewLine
+    └── BrassFrame
 ```
 
-`_build_stars()` dùng `RandomNumberGenerator` với seed cố định để tạo đúng cùng bố cục. Khi view ẩn, processing và unhandled input đều được tắt. `open_view()` bật lại chúng; `close_view()` tắt và phát signal `closed`.
+`_build_stars()` dùng `RandomNumberGenerator` với seed cố định để tạo đúng cùng bố cục. Chuột được nhận ở `_gui_input()` của root `Control`; `Escape` được nhận ở `_unhandled_input()`. Cạnh hợp lệ được lưu trong `_drawn_edges`; khi đủ cạnh, catalog đánh dấu chòm sao đã khám phá và phát `constellation_discovered`.
+
+### Journal Panel
+
+```text
+JournalPanel (Control)
+├── Dimmer
+└── Panel
+    └── Content (VBoxContainer)
+        ├── Title / Separator
+        ├── EntriesScroll (ScrollContainer)
+        │   └── EntriesContainer
+        ├── ProgressLabel
+        └── CloseHint
+```
+
+Journal dùng cùng `ConstellationCatalog` với Observatory View. Sáu entry được tạo lại khi mở; `ScrollContainer` giữ toàn bộ manh mối trong panel 400 × 300 mà không tràn khỏi viewport.
 
 ## 8. Luồng signal chính
 
@@ -275,6 +334,7 @@ InteractionArea phát hiện Telescope
 Người chơi nhấn E
 → Player gọi Telescope.interact(player)
 → Telescope.observatory_requested
+→ World kiểm tra thời gian từ 19:00 đến trước 05:00
 → World khóa Player
 → World ẩn HUD
 → World gọi ObservatoryView.open_view()
@@ -297,6 +357,26 @@ TimeManager cập nhật giờ
 → time_changed(HH:MM, Color)
 → World cập nhật HUD
 → World cập nhật EnvironmentTint
+→ World cập nhật Lanterns, Fireflies và CelestialEventManager
+```
+
+### Ngồi ghế
+
+```text
+Player gọi Bench.interact(player)
+→ Bench đổi prompt và phát sitting_state_changed
+→ World gọi Player.set_sitting(...)
+→ Player khóa movement nhưng vẫn nhận E để đứng dậy
+```
+
+### Journal
+
+```text
+Người chơi nhấn J
+→ World khóa Player và ẩn HUD
+→ JournalPanel đọc catalog, tạo 6 entry trong EntriesScroll
+→ J hoặc Escape phát JournalPanel.closed
+→ World khôi phục HUD và điều khiển Player
 ```
 
 ## 9. Vai trò từng file code
@@ -346,11 +426,12 @@ Không thêm tham chiếu trực tiếp từ interactable sang HUD hoặc đổi
 
 ## 12. Testing và version control
 
-`tests/mvp_smoke_test.gd` instantiate World rồi mô phỏng input để kiểm tra toàn bộ luồng. Ở display driver headless, test bỏ qua screenshot vì dummy renderer không tạo texture; các assertion gameplay vẫn chạy đầy đủ.
+`tests/mvp_smoke_test.gd` instantiate World rồi mô phỏng keyboard và mouse input để kiểm tra toàn bộ luồng. Test thực sự click các star qua `_gui_input()`, khám phá The Beacon, kiểm tra Journal scroll/progress, trạng thái ngồi, collision hồ, ngày/đêm, lighting và graphics nodes. Ở display driver headless, test bỏ qua screenshot vì dummy renderer không tạo texture; các assertion gameplay vẫn chạy đầy đủ. Trước khi thoát, test giải phóng World để không để lại `ObjectDB` leak.
 
 Các file nên commit:
 
 - `project.godot`
+- `export_presets.cfg`
 - `.tscn`, `.tres`, `.gd`
 - `.gd.uid`
 - Asset nguồn và `.import`
@@ -360,5 +441,6 @@ Các file nên commit:
 Các file không commit:
 
 - `.godot/`
+- `build/`
 - Screenshot smoke test nằm trong `.godot/`
 - Build/export tạm thời

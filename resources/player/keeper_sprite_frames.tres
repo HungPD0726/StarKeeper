@@ -1,9 +1,9 @@
 [gd_resource type="SpriteFrames" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/third_party/julia_character/keeper_walk_down.png" id="1_down"]
-[ext_resource type="Texture2D" path="res://assets/third_party/julia_character/keeper_walk_left.png" id="2_left"]
-[ext_resource type="Texture2D" path="res://assets/third_party/julia_character/keeper_walk_right.png" id="3_right"]
-[ext_resource type="Texture2D" path="res://assets/third_party/julia_character/keeper_walk_up.png" id="4_up"]
+[ext_resource type="Texture2D" path="res://assets/characters/player/keeper_walk_down.png" id="1_down"]
+[ext_resource type="Texture2D" path="res://assets/characters/player/keeper_walk_left.png" id="2_left"]
+[ext_resource type="Texture2D" path="res://assets/characters/player/keeper_walk_right.png" id="3_right"]
+[ext_resource type="Texture2D" path="res://assets/characters/player/keeper_walk_up.png" id="4_up"]
 
 [sub_resource type="AtlasTexture" id="Atlas_down_0"]
 atlas = ExtResource("1_down")

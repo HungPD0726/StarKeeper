@@ -100,6 +100,7 @@ func _on_constellation_discovered(_data: ConstellationData) -> void:
 
 
 func _on_bench_sitting_changed(is_sitting: bool) -> void:
+	player.set_sitting(is_sitting, bench.get_sit_position())
 	if is_sitting:
 		hud.show_notification("Đang ngồi nghỉ ngơi ngắm cảnh...", 2.0)
 		if _sound_manager != null:

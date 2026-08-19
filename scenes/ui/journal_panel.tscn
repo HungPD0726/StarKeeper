@@ -66,9 +66,15 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/separator_color = Color(0.35, 0.45, 0.65, 0.4)
 
-[node name="EntriesContainer" type="VBoxContainer" parent="Panel/Margin/Content"]
+[node name="EntriesScroll" type="ScrollContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 3
+
+[node name="EntriesContainer" type="VBoxContainer" parent="Panel/Margin/Content/EntriesScroll"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
 [node name="ProgressLabel" type="Label" parent="Panel/Margin/Content"]

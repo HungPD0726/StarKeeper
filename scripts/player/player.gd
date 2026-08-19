@@ -16,6 +16,7 @@ signal step_taken(world_position: Vector2)
 @export var step_dust_color: Color = Color(0.91, 0.66, 0.27, 0.65)
 
 var _controls_enabled: bool = true
+var _is_sitting: bool = false
 var _nearby_interactables: Array[Interactable] = []
 var _active_interactable: Interactable
 var _walk_cycle_distance: float = 0.0
@@ -40,7 +41,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var input_direction: Vector2 = Vector2.ZERO
-	if _controls_enabled:
+	if _controls_enabled and not _is_sitting:
 		input_direction = Input.get_vector(
 			"move_left", "move_right", "move_up", "move_down"
 		)
@@ -68,6 +69,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if is_instance_valid(_active_interactable):
 		_active_interactable.interact(self)
+		_emit_current_prompt()
 		get_viewport().set_input_as_handled()
 
 
@@ -77,6 +79,19 @@ func set_controls_enabled(enabled: bool) -> void:
 		velocity = Vector2.ZERO
 		_reset_movement_feedback()
 	_emit_current_prompt()
+
+
+func set_sitting(enabled: bool, sit_position: Vector2 = Vector2.ZERO) -> void:
+	_is_sitting = enabled
+	velocity = Vector2.ZERO
+	if enabled:
+		global_position = sit_position
+		_facing_name = &"down"
+	_reset_movement_feedback()
+
+
+func is_sitting() -> bool:
+	return _is_sitting
 
 
 func _update_movement_feedback(movement_direction: Vector2, distance_moved: float) -> void:
